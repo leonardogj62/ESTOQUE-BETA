@@ -130,7 +130,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <div class="header">
   <div class="header-top">
-    <div class="logo">ð¦</div>
+    <div class="logo">📦</div>
     <div>
       <h1>Estoque Beta</h1>
       <p id="header-status">Conecte ao Google Drive</p>
@@ -142,13 +142,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
-<!-- ââ TELA COMPARAR ââ -->
+<!-- ══ TELA COMPARAR ══ -->
 <div id="tela-comparar" class="screen active">
   <div id="bloco-auth-comparar">
     <div class="auth-card" style="margin-top:16px">
-      <div class="auth-icon">ð</div>
+      <div class="auth-icon">🔗</div>
       <div class="auth-title">Conectar ao Google Drive</div>
-      <div class="auth-sub">Autorize uma vez e o app buscarÃ¡ os estoques automaticamente sempre que vocÃª abrir.</div>
+      <div class="auth-sub">Autorize uma vez e o app buscará os estoques automaticamente sempre que você abrir.</div>
     </div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
   </div>
@@ -157,10 +157,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <p class="section-label">Tipo de estoque</p>
     <div class="tipo-chips" id="chips-tipo">
       <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" data-label="Masc. Pronta Entrega" onclick="selecionarTipo(this)">Masc. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" data-label="Masc. ProgramaÃ§Ã£o" onclick="selecionarTipo(this)">Masc. ProgramaÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" data-label="Masc. Programação" onclick="selecionarTipo(this)">Masc. Programação</div>
       <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" data-label="Fem. Pronta Entrega" onclick="selecionarTipo(this)">Fem. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" data-label="Fem. ProgramaÃ§Ã£o" onclick="selecionarTipo(this)">Fem. ProgramaÃ§Ã£o</div>
-      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" data-label="Fem. PromoÃ§Ã£o" onclick="selecionarTipo(this)">Fem. PromoÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" data-label="Fem. Programação" onclick="selecionarTipo(this)">Fem. Programação</div>
+      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" data-label="Fem. Promoção" onclick="selecionarTipo(this)">Fem. Promoção</div>
     </div>
 
     <div id="area-arquivos" style="display:none">
@@ -168,7 +168,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div id="info-arquivos"></div>
       <div class="mt16">
         <button class="btn btn-primary" id="btn-comparar" onclick="compararEstoques()">Comparar automaticamente</button>
-        <button class="btn btn-secondary" onclick="buscarArquivos()">ð Atualizar</button>
+        <button class="btn btn-secondary" onclick="buscarArquivos()">🔄 Atualizar</button>
       </div>
     </div>
 
@@ -180,11 +180,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
-<!-- ââ TELA BUSCAR ââ -->
+<!-- ══ TELA BUSCAR ══ -->
 <div id="tela-buscar" class="screen">
   <div id="bloco-auth-buscar">
     <div class="auth-card" style="margin-top:16px">
-      <div class="auth-icon">ð</div>
+      <div class="auth-icon">🔗</div>
       <div class="auth-title">Conectar ao Google Drive</div>
       <div class="auth-sub">Autorize para buscar produtos diretamente do estoque mais recente.</div>
     </div>
@@ -195,10 +195,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <p class="section-label">Tipo de estoque</p>
     <div class="tipo-chips" id="chips-busca">
       <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipoBusca(this)">Masc. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoBusca(this)">Masc. ProgramaÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoBusca(this)">Masc. Programação</div>
       <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" onclick="selecionarTipoBusca(this)">Fem. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. ProgramaÃ§Ã£o</div>
-      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoBusca(this)">Fem. PromoÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. Programação</div>
+      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoBusca(this)">Fem. Promoção</div>
     </div>
 
     <div id="loading-busca" style="display:none" class="loading mt16">
@@ -208,7 +208,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div id="area-busca-produto" style="display:none">
       <p class="section-label">Buscar produto</p>
       <div class="search-wrap">
-        <span class="search-icon">ð</span>
+        <span class="search-icon">🔍</span>
         <input type="text" id="input-busca" placeholder="Nome do produto, cor ou processo..." oninput="filtrarProdutos()">
       </div>
       <div id="lista-produtos"></div>
@@ -217,17 +217,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 <script>
-// ââ CONFIG âââââââââââââââââââââââââââââââââââââââââââââ
+// ── CONFIG ─────────────────────────────────────────────
 var CLIENT_ID = '384112373104-a0jraq8eggdjrh66falrud59cm5g7rrq.apps.googleusercontent.com';
 var SCOPES     = 'https://www.googleapis.com/auth/drive.readonly';
 
-// IDs das pastas (jÃ¡ configurados com os seus)
+// IDs das pastas (já configurados com os seus)
 var PASTAS = {
   '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN': 'Masc. Pronta Entrega',
-  '1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM': 'Masc. ProgramaÃ§Ã£o',
+  '1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM': 'Masc. Programação',
   '1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw': 'Fem. Pronta Entrega',
-  '1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3': 'Fem. ProgramaÃ§Ã£o',
-  '1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN': 'Fem. PromoÃ§Ã£o'
+  '1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3': 'Fem. Programação',
+  '1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN': 'Fem. Promoção'
 };
 
 var token       = null;
@@ -240,7 +240,7 @@ var dadosAtual      = null;
 var todosProdutos   = [];
 var _todosResultados = [];
 
-// ââ AUTENTICAÃÃO âââââââââââââââââââââââââââââââââââââââ
+// ── AUTENTICAÇÃO ───────────────────────────────────────
 function autenticar() {
   var url = 'https://accounts.google.com/o/oauth2/v2/auth'
     + '?client_id=' + CLIENT_ID
@@ -282,11 +282,11 @@ function onAutenticado() {
   document.getElementById('bloco-comparar').style.display = 'block';
   document.getElementById('bloco-auth-buscar').style.display = 'none';
   document.getElementById('bloco-buscar').style.display = 'block';
-  document.getElementById('header-status').textContent = 'Conectado ao Drive â';
+  document.getElementById('header-status').textContent = 'Conectado ao Drive ✓';
   buscarArquivos();
 }
 
-// ââ BUSCAR ARQUIVOS NO DRIVE âââââââââââââââââââââââââââ
+// ── BUSCAR ARQUIVOS NO DRIVE ───────────────────────────
 function buscarArquivos() {
   document.getElementById('area-arquivos').style.display = 'none';
   document.getElementById('loading-arquivos').style.display = 'block';
@@ -300,13 +300,13 @@ function buscarArquivos() {
   .then(function(data) {
     document.getElementById('loading-arquivos').style.display = 'none';
     var files = data.files || [];
-    // Ordena pela data extraÃ­da do nome do arquivo (ex: "MASCULINO - PRONTA ENTREGA - 09.06.26.xlsx")
+    // Ordena pela data extraída do nome do arquivo (ex: "MASCULINO - PRONTA ENTREGA - 09.06.26.xlsx")
     files.sort(function(a, b) {
       return extrairDataDoNome(b.name) - extrairDataDoNome(a.name);
     });
     if (files.length < 2) {
       document.getElementById('area-arquivos').style.display = 'block';
-      document.getElementById('info-arquivos').innerHTML = '<div class="empty-state"><div class="empty-icon">ð</div><p>SÃ£o necessÃ¡rios pelo menos 2 arquivos nesta pasta para comparar.</p></div>';
+      document.getElementById('info-arquivos').innerHTML = '<div class="empty-state"><div class="empty-icon">📁</div><p>São necessários pelo menos 2 arquivos nesta pasta para comparar.</p></div>';
       document.getElementById('btn-comparar').disabled = true;
       return;
     }
@@ -323,13 +323,13 @@ function buscarArquivos() {
   .catch(function(e) {
     document.getElementById('loading-arquivos').style.display = 'none';
     document.getElementById('area-arquivos').style.display = 'block';
-    document.getElementById('info-arquivos').innerHTML = '<div class="empty-state"><div class="empty-icon">â ï¸</div><p>Erro ao buscar arquivos. Tente reconectar.</p></div>';
+    document.getElementById('info-arquivos').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao buscar arquivos. Tente reconectar.</p></div>';
     token = null; localStorage.removeItem('drive_token');
   });
 }
 
 function extrairDataDoNome(nome) {
-  // Extrai data do nome: "MASCULINO - PRONTA ENTREGA - 09.06.26.xlsx" â Date(2026,5,9)
+  // Extrai data do nome: "MASCULINO - PRONTA ENTREGA - 09.06.26.xlsx" → Date(2026,5,9)
   var m = nome.match(/(\d{2})\.(\d{2})\.(\d{2})[\.\s]/);
   if (m) {
     var ano = 2000 + parseInt(m[3]);
@@ -344,13 +344,13 @@ function renderFileInfo(file, tipo, label) {
     ? new Date(dataRef).toLocaleDateString('pt-BR')
     : new Date(file.modifiedTime).toLocaleDateString('pt-BR');
   return '<div class="file-info">'
-    + '<div class="file-icon">ð</div>'
+    + '<div class="file-icon">📊</div>'
     + '<div style="flex:1"><div class="file-name">' + file.name + '</div><div class="file-date">' + dataStr + '</div></div>'
     + '<span class="file-badge ' + tipo + '">' + label + '</span>'
     + '</div>';
 }
 
-// ââ DOWNLOAD E PARSE âââââââââââââââââââââââââââââââââââ
+// ── DOWNLOAD E PARSE ───────────────────────────────────
 function downloadArquivo(fileId) {
   return fetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media', {
     headers: { Authorization: 'Bearer ' + token }
@@ -365,7 +365,7 @@ function downloadArquivo(fileId) {
 function parsearEstoque(workbook) {
   var itens = {};
 
-  // Tenta todas as abas da planilha, não apenas a primeira
+  // Tenta todas as abas da planilha, nao apenas a primeira
   for (var sheetIdx = 0; sheetIdx < workbook.SheetNames.length; sheetIdx++) {
     var sheet = workbook.Sheets[workbook.SheetNames[sheetIdx]];
     var rows  = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
@@ -375,11 +375,11 @@ function parsearEstoque(workbook) {
 
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
-      // Junta todas as células em string para busca
+      // Junta todas as celulas em string para busca
       var rowStr = row.map(function(c){ return String(c||'').trim(); }).join('||');
 
       // Detecta linha de processo (ex: "Processo: PI363" ou "PROCESSO : 252081")
-      var mProc = rowStr.match(/[Pp]rocesso[:s]+([A-Z0-9-.]+)/);
+      var mProc = rowStr.match(/[Pp]rocesso[:\s]+([A-Z0-9\-\.]+)/);
       if (mProc) { processoAtual = mProc[1].trim(); continue; }
 
       var c0 = String(row[0] || '').trim();
@@ -387,28 +387,28 @@ function parsearEstoque(workbook) {
 
       // Detecta nome do produto
       if (c0.startsWith('Nome :') || c0.startsWith('Nome:')) {
-        var m = c0.match(/Nomes*:s*s*(.+?)(?:s*(|$)/);
-        produtoAtual = m ? m[1].trim() : c0.replace(/Nomes*:/i,'').trim();
+        var m = c0.match(/Nome\s*:\s*\s*(.+?)(?:\s*\(|$)/);
+        produtoAtual = m ? m[1].trim() : c0.replace(/Nome\s*:/i,'').trim();
         corAtual = '';
         continue;
       }
       // Detecta cor
       var corCandidate = c0.startsWith('Cor :') || c0.startsWith('Cor:') ? c0 : (c1.startsWith('Cor :') || c1.startsWith('Cor:') ? c1 : null);
       if (corCandidate) {
-        var mc = corCandidate.match(/Cors*:s*s*(.+?)(?:s*(|$)/);
-        corAtual = mc ? mc[1].trim() : corCandidate.replace(/Cors*:/i,'').trim();
+        var mc = corCandidate.match(/Cor\s*:\s*\s*(.+?)(?:\s*\(|$)/);
+        corAtual = mc ? mc[1].trim() : corCandidate.replace(/Cor\s*:/i,'').trim();
         continue;
       }
 
-      // Detecta quantidade — percorre todas as células procurando número válido
+      // Detecta quantidade - percorre todas as celulas procurando numero valido
       var qtde = 0;
       for (var j = 0; j < row.length; j++) {
         var cell = String(row[j] || '').trim();
         if (!cell || cell === 'Qtde em Estoque' || cell === 'SubClasse' || cell === '0') continue;
-        // Remove separadores de milhar e converte vírgula
-        var numStr = cell.replace(/./g,'').replace(',','.');
+        // Remove separadores de milhar e converte virgula
+        var numStr = cell.replace(/\./g,'').replace(',','.');
         var n = parseFloat(numStr);
-        if (!isNaN(n) && n > 0 && /^[d]/.test(cell)) { qtde = n; break; }
+        if (!isNaN(n) && n > 0 && /^[\d]/.test(cell)) { qtde = n; break; }
       }
 
       if (produtoAtual && corAtual && qtde > 0) {
@@ -425,7 +425,7 @@ function parsearEstoque(workbook) {
   return itens;
 }
 
-// ââ COMPARAR âââââââââââââââââââââââââââââââââââââââââââ
+// ── COMPARAR ───────────────────────────────────────────
 function compararEstoques() {
   document.getElementById('resultado-comparacao').innerHTML = '<div class="loading mt16"><span class="spinner"></span> Baixando e comparando arquivos...</div>';
   document.getElementById('btn-comparar').disabled = true;
@@ -439,7 +439,7 @@ function compararEstoques() {
     renderComparacao();
     document.getElementById('btn-comparar').disabled = false;
   }).catch(function() {
-    document.getElementById('resultado-comparacao').innerHTML = '<div class="empty-state"><div class="empty-icon">â ï¸</div><p>Erro ao baixar arquivos. Verifique a conexÃ£o.</p></div>';
+    document.getElementById('resultado-comparacao').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao baixar arquivos. Verifique a conexão.</p></div>';
     document.getElementById('btn-comparar').disabled = false;
   });
 }
@@ -447,7 +447,7 @@ function compararEstoques() {
 function renderComparacao() {
   var esgotados = [], reduziram = [], aumentaram = [], novos = [], voltou = [];
 
-  // Monta lista de nomes de produtos presentes no estoque atual (para detectar transferÃªncias)
+  // Monta lista de nomes de produtos presentes no estoque atual (para detectar transferências)
   var nomesNoAtual = {};
   Object.keys(dadosAtual).forEach(function(chave) { nomesNoAtual[dadosAtual[chave].produto] = true; });
 
@@ -456,7 +456,7 @@ function renderComparacao() {
     var atu = dadosAtual[chave];
     if (!atu || atu.qtd === 0) {
       // Verifica se o produto (ignorando cor) ainda existe no estoque atual
-      // Se sim, Ã© transferÃªncia â nÃ£o marca como esgotado
+      // Se sim, é transferência — não marca como esgotado
       if (nomesNoAtual[ant.produto]) return;
       esgotados.push({ produto: ant.produto, cor: ant.cor, qtdAnt: ant.qtd, qtdAtu: 0, processo: ant.processo, tipo: 'esgotado' });
     } else if (atu.qtd < ant.qtd) {
@@ -469,8 +469,8 @@ function renderComparacao() {
   Object.keys(dadosAtual).forEach(function(chave) {
     var atu = dadosAtual[chave];
     if (!dadosAnterior[chave]) {
-      // Verifica se estava zerado antes (voltou ao estoque) ou Ã© realmente novo
-      // Como nÃ£o temos histÃ³rico de zeros, marca como novo com observaÃ§Ã£o
+      // Verifica se estava zerado antes (voltou ao estoque) ou é realmente novo
+      // Como não temos histórico de zeros, marca como novo com observação
       novos.push({ produto: atu.produto, cor: atu.cor, qtdAnt: 0, qtdAtu: atu.qtd, processo: atu.processo, tipo: 'novo' });
     } else if (dadosAnterior[chave] && dadosAnterior[chave].qtd === 0 && atu.qtd > 0) {
       voltou.push({ produto: atu.produto, cor: atu.cor, qtdAnt: 0, qtdAtu: atu.qtd, processo: atu.processo, tipo: 'voltou' });
@@ -480,7 +480,7 @@ function renderComparacao() {
   _todosResultados = esgotados.concat(reduziram).concat(aumentaram).concat(novos).concat(voltou);
 
   var html = '<div style="margin-top:20px">';
-  html += '<p class="section-label">Resultado da comparaÃ§Ã£o</p>';
+  html += '<p class="section-label">Resultado da comparação</p>';
   html += '<div class="stats-grid">';
   html += '<div class="stat-card red"><div class="stat-label">Esgotados</div><div class="stat-value">' + esgotados.length + '</div></div>';
   html += '<div class="stat-card amber"><div class="stat-label">Reduziram</div><div class="stat-value">' + reduziram.length + '</div></div>';
@@ -490,11 +490,11 @@ function renderComparacao() {
 
   html += '<div class="filter-bar">';
   html += '<button class="filter-btn active" onclick="filtrarResultado(\'todos\',this)">Todos</button>';
-  html += '<button class="filter-btn" onclick="filtrarResultado(\'esgotado\',this)">ð´ Esgotados (' + esgotados.length + ')</button>';
-  html += '<button class="filter-btn" onclick="filtrarResultado(\'reduziu\',this)">ð¡ Reduziram (' + reduziram.length + ')</button>';
-  html += '<button class="filter-btn" onclick="filtrarResultado(\'aumentou\',this)">ð¢ Aumentaram (' + aumentaram.length + ')</button>';
-  html += '<button class="filter-btn" onclick="filtrarResultado(\'novo\',this)">ðµ Novos (' + novos.length + ')</button>';
-  html += '<button class="filter-btn" onclick="filtrarResultado(\'voltou\',this)">ð£ Voltou (' + voltou.length + ')</button>';
+  html += '<button class="filter-btn" onclick="filtrarResultado(\'esgotado\',this)">🔴 Esgotados (' + esgotados.length + ')</button>';
+  html += '<button class="filter-btn" onclick="filtrarResultado(\'reduziu\',this)">🟡 Reduziram (' + reduziram.length + ')</button>';
+  html += '<button class="filter-btn" onclick="filtrarResultado(\'aumentou\',this)">🟢 Aumentaram (' + aumentaram.length + ')</button>';
+  html += '<button class="filter-btn" onclick="filtrarResultado(\'novo\',this)">🔵 Novos (' + novos.length + ')</button>';
+  html += '<button class="filter-btn" onclick="filtrarResultado(\'voltou\',this)">🟣 Voltou (' + voltou.length + ')</button>';
   html += '</div>';
   html += '<div id="lista-resultado">' + renderItens(_todosResultados) + '</div>';
   html += '</div>';
@@ -503,16 +503,16 @@ function renderComparacao() {
 }
 
 function renderItens(lista) {
-  if (!lista.length) return '<div class="empty-state"><div class="empty-icon">â</div><p>Nenhum item nesta categoria</p></div>';
+  if (!lista.length) return '<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum item nesta categoria</p></div>';
   var labels  = { esgotado: 'Esgotado', reduziu: 'Reduziu', aumentou: 'Aumentou', novo: 'Novo' };
   var corQtds = { esgotado: 'red', reduziu: 'amber', aumentou: 'green', novo: 'blue' };
   return lista.map(function(item) {
     var cq = corQtds[item.tipo];
     return '<div class="result-item ' + item.tipo + '">'
       + '<div class="result-produto">' + item.produto + '<span class="badge ' + item.tipo + '">' + labels[item.tipo] + '</span></div>'
-      + '<div class="result-cor">' + item.cor + (item.processo ? ' Â· ' + item.processo : '') + '</div>'
+      + '<div class="result-cor">' + item.cor + (item.processo ? ' · ' + item.processo : '') + '</div>'
       + '<div class="result-qtd">'
-      + (item.tipo !== 'novo' ? '<span class="qtd-old">' + Math.round(item.qtdAnt) + ' m</span><span class="qtd-arrow">â</span>' : '')
+      + (item.tipo !== 'novo' ? '<span class="qtd-old">' + Math.round(item.qtdAnt) + ' m</span><span class="qtd-arrow">→</span>' : '')
       + '<span class="qtd-new ' + cq + '">' + (item.tipo === 'esgotado' ? 'zerado' : Math.round(item.qtdAtu) + ' m') + '</span>'
       + '</div></div>';
   }).join('');
@@ -525,7 +525,7 @@ function filtrarResultado(tipo, btn) {
   document.getElementById('lista-resultado').innerHTML = renderItens(lista);
 }
 
-// ââ SELEÃÃO DE TIPO ââââââââââââââââââââââââââââââââââââ
+// ── SELEÇÃO DE TIPO ────────────────────────────────────
 function selecionarTipo(chip) {
   document.querySelectorAll('#chips-tipo .tipo-chip').forEach(function(c) { c.classList.remove('selected'); });
   chip.classList.add('selected');
@@ -544,7 +544,7 @@ function selecionarTipoBusca(chip) {
   carregarUltimoEstoque();
 }
 
-// ââ BUSCA DE PRODUTO âââââââââââââââââââââââââââââââââââ
+// ── BUSCA DE PRODUTO ───────────────────────────────────
 function carregarUltimoEstoque() {
   document.getElementById('loading-busca').style.display = 'block';
   document.getElementById('area-busca-produto').style.display = 'none';
@@ -599,13 +599,13 @@ function filtrarProdutos() {
 }
 
 function renderProdutos(lista) {
-  if (!lista.length) { document.getElementById('lista-produtos').innerHTML = '<div class="empty-state"><div class="empty-icon">ð</div><p>Nenhum produto encontrado</p></div>'; return; }
+  if (!lista.length) { document.getElementById('lista-produtos').innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>'; return; }
   document.getElementById('lista-produtos').innerHTML = lista.map(function(p, idx) {
     var total = p.cores.reduce(function(s,c) { return s + c.qtd; }, 0);
     return '<div class="produto-card" id="prod-' + idx + '">'
       + '<div class="produto-header" onclick="toggleProduto(' + idx + ')">'
-      + '<div><div class="produto-nome">' + p.nome + '</div><div class="produto-total">' + p.cores.length + ' cor(es) Â· ' + Math.round(total) + ' m</div></div>'
-      + '<span class="produto-arrow">â¼</span></div>'
+      + '<div><div class="produto-nome">' + p.nome + '</div><div class="produto-total">' + p.cores.length + ' cor(es) · ' + Math.round(total) + ' m</div></div>'
+      + '<span class="produto-arrow">▼</span></div>'
       + '<div class="cores-list">' + p.cores.map(function(c) {
         return '<div class="cor-item"><div><div class="cor-nome">' + c.cor + '</div>' + (c.processo ? '<div class="cor-processo">' + c.processo + '</div>' : '') + '</div><div class="cor-qtd">' + Math.round(c.qtd) + ' m</div></div>';
       }).join('') + '</div></div>';
@@ -622,7 +622,7 @@ function trocarTela(tela, btn) {
   if (tela === 'buscar' && token && todosProdutos.length === 0) carregarUltimoEstoque();
 }
 
-// ââ INIT âââââââââââââââââââââââââââââââââââââââââââââââ
+// ── INIT ───────────────────────────────────────────────
 verificarToken();
 </script>
 </body>
