@@ -376,17 +376,17 @@ function parsearEstoque(workbook) {
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       // Junta todas as celulas em string para busca
-      var rowStr = row.map(function(c){ return String(c||'').trim(); }).join('||');
+      var rowStr = row.map(function(c){ return String(c || ''); }).join(' ');
 
       // Detecta linha de processo (ex: "Processo: PI363" ou "PROCESSO : 252081")
-      var mProc = rowStr.match(/[Pp]rocesso[:\s]+([A-Z0-9\-\.]+)/);
-      if (mProc) { processoAtual = mProc[1].trim(); continue; }
+      var mProc = rowStr.match(/[Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo]\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
+      if (mProc && rowStr.toLowerCase().indexOf('processo') >= 0) { processoAtual = mProc[1].trim(); continue; }
 
+      // Detecta nome do produto (pode estar em c0 ou c1 dependendo do formato)
       var c0 = String(row[0] || '').trim();
       var c1 = String(row[1] || '').trim();
       var c2 = String(row[2] || '').trim();
 
-      // Detecta nome do produto (pode estar em c0 ou c1 dependendo do formato)
       var nomeCandidate = (c0.startsWith('Nome :') || c0.startsWith('Nome:')) ? c0
                         : (c1.startsWith('Nome :') || c1.startsWith('Nome:')) ? c1
                         : null;
@@ -398,31 +398,36 @@ function parsearEstoque(workbook) {
       }
 
       // Detecta cor (pode estar em c0, c1 ou c2 dependendo do formato)
+      // IMPORTANTE: cor e quantidade estao na MESMA linha (cor em c2, qtd em c4)
       var corCandidate = (c0.startsWith('Cor :') || c0.startsWith('Cor:')) ? c0
                        : (c1.startsWith('Cor :') || c1.startsWith('Cor:')) ? c1
                        : (c2.startsWith('Cor :') || c2.startsWith('Cor:')) ? c2
                        : null;
       if (corCandidate) {
-        var mc = corCandidate.match(/Cor\s*:\s*\s*(.+?)(?:\s*\(|$)/);
-        corAtual = mc ? mc[1].trim() : corCandidate.replace(/Cor\s*:/i,'').trim();
+        var mCor = corCandidate.match(/Cor\s*:\s*(.+?)(?:\s*\(|$)/);
+        corAtual = mCor ? mCor[1].trim() : corCandidate.replace(/Cor\s*:/i,'').trim();
+
+        // Quantidade esta na mesma linha que a cor (coluna 4)
+        var qtdeStr = String(row[4] || '').replace(/\./g,'').replace(',','.');
+        var qtde = parseFloat(qtdeStr);
+
+        // Fallback: percorre outras colunas procurando numero valido
+        if (isNaN(qtde) || qtde <= 0) {
+          for (var j = 0; j < row.length; j++) {
+            var cell = String(row[j] || '').trim();
+            if (!cell || cell === 'Qtde em Estoque' || cell === 'SubClasse' || cell === '0') continue;
+            var numStr = cell.replace(/\./g,'').replace(',','.');
+            var n = parseFloat(numStr);
+            if (!isNaN(n) && n > 0 && /^[\d]/.test(cell)) { qtde = n; break; }
+          }
+        }
+
+        if (produtoAtual && corAtual && qtde > 0) {
+          var chave = produtoAtual + '||' + corAtual;
+          if (!itens[chave]) itens[chave] = { produto: produtoAtual, cor: corAtual, qtd: 0, processo: processoAtual };
+          itens[chave].qtd += qtde;
+        }
         continue;
-      }
-
-      // Detecta quantidade - percorre todas as celulas procurando numero valido
-      var qtde = 0;
-      for (var j = 0; j < row.length; j++) {
-        var cell = String(row[j] || '').trim();
-        if (!cell || cell === 'Qtde em Estoque' || cell === 'SubClasse' || cell === '0') continue;
-        // Remove separadores de milhar e converte virgula
-        var numStr = cell.replace(/\./g,'').replace(',','.');
-        var n = parseFloat(numStr);
-        if (!isNaN(n) && n > 0 && /^[\d]/.test(cell)) { qtde = n; break; }
-      }
-
-      if (produtoAtual && corAtual && qtde > 0) {
-        var chave = produtoAtual + '||' + corAtual;
-        if (!itens[chave]) itens[chave] = { produto: produtoAtual, cor: corAtual, qtd: 0, processo: processoAtual };
-        itens[chave].qtd += qtde;
       }
     }
 
@@ -432,8 +437,6 @@ function parsearEstoque(workbook) {
 
   return itens;
 }
-
-// ── COMPARAR ───────────────────────────────────────────
 function compararEstoques() {
   document.getElementById('resultado-comparacao').innerHTML = '<div class="loading mt16"><span class="spinner"></span> Baixando e comparando arquivos...</div>';
   document.getElementById('btn-comparar').disabled = true;
