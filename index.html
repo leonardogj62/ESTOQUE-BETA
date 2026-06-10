@@ -384,16 +384,24 @@ function parsearEstoque(workbook) {
 
       var c0 = String(row[0] || '').trim();
       var c1 = String(row[1] || '').trim();
+      var c2 = String(row[2] || '').trim();
 
-      // Detecta nome do produto
-      if (c0.startsWith('Nome :') || c0.startsWith('Nome:')) {
-        var m = c0.match(/Nome\s*:\s*\s*(.+?)(?:\s*\(|$)/);
-        produtoAtual = m ? m[1].trim() : c0.replace(/Nome\s*:/i,'').trim();
+      // Detecta nome do produto (pode estar em c0 ou c1 dependendo do formato)
+      var nomeCandidate = (c0.startsWith('Nome :') || c0.startsWith('Nome:')) ? c0
+                        : (c1.startsWith('Nome :') || c1.startsWith('Nome:')) ? c1
+                        : null;
+      if (nomeCandidate) {
+        var m = nomeCandidate.match(/Nome\s*:\s*\s*(.+?)(?:\s*\(|$)/);
+        produtoAtual = m ? m[1].trim() : nomeCandidate.replace(/Nome\s*:/i,'').trim();
         corAtual = '';
         continue;
       }
-      // Detecta cor
-      var corCandidate = c0.startsWith('Cor :') || c0.startsWith('Cor:') ? c0 : (c1.startsWith('Cor :') || c1.startsWith('Cor:') ? c1 : null);
+
+      // Detecta cor (pode estar em c0, c1 ou c2 dependendo do formato)
+      var corCandidate = (c0.startsWith('Cor :') || c0.startsWith('Cor:')) ? c0
+                       : (c1.startsWith('Cor :') || c1.startsWith('Cor:')) ? c1
+                       : (c2.startsWith('Cor :') || c2.startsWith('Cor:')) ? c2
+                       : null;
       if (corCandidate) {
         var mc = corCandidate.match(/Cor\s*:\s*\s*(.+?)(?:\s*\(|$)/);
         corAtual = mc ? mc[1].trim() : corCandidate.replace(/Cor\s*:/i,'').trim();
