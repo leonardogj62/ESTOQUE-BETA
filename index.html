@@ -382,7 +382,7 @@ function autenticar() {
     + '&redirect_uri=' + encodeURIComponent(window.location.href.split('?')[0])
     + '&response_type=token'
     + '&scope=' + encodeURIComponent(SCOPES)
-    + '&prompt=consent';
+    + '&prompt=none';
   window.location.href = url;
 }
 
