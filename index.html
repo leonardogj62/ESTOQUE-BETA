@@ -142,6 +142,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .info-box { background: #e6f1fb; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: #0c447c; margin-bottom: 14px; line-height: 1.5; }
 
 /* ETIQUETAS */
+.lavagem-icons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.lavagem-icon { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lavagem-icon svg { width: 38px; height: 38px; }
+.lavagem-icon-label { font-size: 9px; color: var(--text3); text-align: center; max-width: 44px; line-height: 1.2; }
+
 .etiqueta-section { border-top: 0.5px solid var(--border); padding: 10px 14px; background: #fafaf7; }
 .etiqueta-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; }
 .etiqueta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
@@ -278,7 +283,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <script>
 var CLIENT_ID = '384112373104-a0jraq8eggdjrh66falrud59cm5g7rrq.apps.googleusercontent.com';
 var SCOPES = 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/gmail.readonly';
-var JSON_ETIQUETAS_ID = '1eAhLiiVd5WICGYLSzrkqioilVzroy_tG';
+var JSON_ETIQUETAS_ID = '1dZoLw8nCoSkSIcm9WRPGVMLWSA_y_gnU';
 
 var token = null;
 var pastaAtiva  = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
@@ -332,6 +337,185 @@ function onAutenticado() {
 }
 
 // ── ETIQUETAS ──────────────────────────────────────────
+// ── ÍCONES DE LAVAGEM ──────────────────────────────────────
+// Mapeia tokens extraídos pelo OCR para SVGs de lavagem
+
+var ICONES_LAVAGEM = {
+  // ── LAVAGEM ────────────────────────────────────────────
+  'lavar-30': {
+    label: 'Lavar 30°C',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#378ADD" font-weight="700" font-family="sans-serif">30</text></svg>'
+  },
+  'lavar-40': {
+    label: 'Lavar 40°C',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#378ADD" font-weight="700" font-family="sans-serif">40</text></svg>'
+  },
+  'lavar-60': {
+    label: 'Lavar 60°C',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#EF9F27" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#EF9F27" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#EF9F27" font-weight="700" font-family="sans-serif">60</text></svg>'
+  },
+  'lavar-95': {
+    label: 'Lavar 95°C',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#E24B4A" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#E24B4A" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#E24B4A" font-weight="700" font-family="sans-serif">95</text></svg>'
+  },
+  'lavar-mao': {
+    label: 'Lavar à mão',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="7" fill="#378ADD" font-weight="700" font-family="sans-serif">MÃO</text></svg>'
+  },
+  'nao-lavar': {
+    label: 'Não lavar',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#E24B4A" stroke-width="1.5" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="7" x2="31" y2="33" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="7" x2="5" y2="33" stroke="#E24B4A" stroke-width="2"/></svg>'
+  },
+  // ── ALVEJAMENTO ────────────────────────────────────────
+  'alvejar-cloro': {
+    label: 'Alvejar com cloro',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#639922" stroke-width="1.5" fill="none"/></svg>'
+  },
+  'alvejar-sem-cloro': {
+    label: 'Só sem cloro',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#639922" stroke-width="1.5" fill="none"/><line x1="8" y1="22" x2="20" y2="26" stroke="#639922" stroke-width="1.5"/></svg>'
+  },
+  'nao-alvejar': {
+    label: 'Não alvejar',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="7" x2="31" y2="33" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="7" x2="5" y2="33" stroke="#E24B4A" stroke-width="2"/></svg>'
+  },
+  // ── SECAGEM ────────────────────────────────────────────
+  'secar-secadora': {
+    label: 'Secar secadora',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#BA7517" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="7" stroke="#BA7517" stroke-width="1.5" fill="none"/></svg>'
+  },
+  'nao-secar-secadora': {
+    label: 'Não secar secadora',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#E24B4A" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="7" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
+  },
+  'secar-sombra': {
+    label: 'Secar à sombra',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="24" height="16" rx="2" stroke="#BA7517" stroke-width="1.5" fill="none"/><line x1="11" y1="18" x2="25" y2="18" stroke="#BA7517" stroke-width="1.5"/></svg>'
+  },
+  'secar-linha': {
+    label: 'Secar na linha',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="24" height="16" rx="2" stroke="#BA7517" stroke-width="1.5" fill="none"/></svg>'
+  },
+  'secar-plano': {
+    label: 'Secar plano',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="24" height="16" rx="2" stroke="#BA7517" stroke-width="1.5" fill="none"/><line x1="11" y1="15" x2="25" y2="15" stroke="#BA7517" stroke-width="1"/><line x1="11" y1="21" x2="25" y2="21" stroke="#BA7517" stroke-width="1"/></svg>'
+  },
+  // ── FERRO ──────────────────────────────────────────────
+  'ferro-baixo': {
+    label: 'Ferro baixo (110°C)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="14" cy="19" r="1.5" fill="#534AB7"/></svg>'
+  },
+  'ferro-medio': {
+    label: 'Ferro médio (150°C)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="13" cy="18" r="1.5" fill="#534AB7"/><circle cx="19" cy="18" r="1.5" fill="#534AB7"/></svg>'
+  },
+  'ferro-alto': {
+    label: 'Ferro alto (200°C)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="12" cy="18" r="1.5" fill="#534AB7"/><circle cx="18" cy="18" r="1.5" fill="#534AB7"/><circle cx="24" cy="18" r="1.5" fill="#534AB7"/></svg>'
+  },
+  'nao-passar-ferro': {
+    label: 'Não passar ferro',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#E24B4A" stroke-width="1.5"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
+  },
+  // ── LIMPEZA A SECO ─────────────────────────────────────
+  'limpeza-seco-p': {
+    label: 'Limpeza seco (P)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">P</text></svg>'
+  },
+  'limpeza-seco-f': {
+    label: 'Limpeza seco (F)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">F</text></svg>'
+  },
+  'limpeza-seco-w': {
+    label: 'Limpeza úmida (W)',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">W</text></svg>'
+  },
+  'nao-limpeza-seco': {
+    label: 'Não limpar a seco',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
+  }
+};
+
+// Mapeia texto bruto do OCR para chaves de ícones
+function mapearIconesLavagem(instrucoes) {
+  var iconesEncontrados = [];
+  var texto = Array.isArray(instrucoes) ? instrucoes.join(' ') : (instrucoes || '');
+  texto = texto.toUpperCase();
+
+  // ── Temperatura de lavagem ────────────────────────────
+  if (/NÃO\s*LAVAR|NAO\s*LAVAR/.test(texto)) {
+    iconesEncontrados.push('nao-lavar');
+  } else if (/95/.test(texto)) {
+    iconesEncontrados.push('lavar-95');
+  } else if (/60/.test(texto)) {
+    iconesEncontrados.push('lavar-60');
+  } else if (/40/.test(texto)) {
+    iconesEncontrados.push('lavar-40');
+  } else if (/30/.test(texto)) {
+    iconesEncontrados.push('lavar-30');
+  } else if (/MÃO|MAO|HAND/.test(texto)) {
+    iconesEncontrados.push('lavar-mao');
+  }
+
+  // ── Alvejamento ───────────────────────────────────────
+  if (/NÃO\s*ALVEJAR|NAO\s*ALVEJAR|☒|⊠|[Xx]\s*(?:TRIÂNGULO|TRIANGLE|△|▲)/.test(texto)) {
+    iconesEncontrados.push('nao-alvejar');
+  } else if (/SEM\s*CLORO|WITHOUT\s*CHLORINE/.test(texto)) {
+    iconesEncontrados.push('alvejar-sem-cloro');
+  }
+
+  // ── Secagem ───────────────────────────────────────────
+  if (/NÃO\s*SECAR|NAO\s*SECAR/.test(texto)) {
+    iconesEncontrados.push('nao-secar-secadora');
+  } else if (/SECADORA|DRYER/.test(texto)) {
+    iconesEncontrados.push('secar-secadora');
+  }
+  if (/SOMBRA|SHADE/.test(texto)) iconesEncontrados.push('secar-sombra');
+  if (/PLANO|FLAT/.test(texto)) iconesEncontrados.push('secar-plano');
+
+  // ── Ferro ─────────────────────────────────────────────
+  if (/NÃO\s*(?:PASSAR|FERRO)|NAO\s*(?:PASSAR|FERRO)/.test(texto)) {
+    iconesEncontrados.push('nao-passar-ferro');
+  } else if (/200|ALTO/.test(texto) && /FERRO|IRON/.test(texto)) {
+    iconesEncontrados.push('ferro-alto');
+  } else if (/150|MÉDIO|MEDIO/.test(texto) && /FERRO|IRON/.test(texto)) {
+    iconesEncontrados.push('ferro-medio');
+  } else if (/110|BAIXO/.test(texto) && /FERRO|IRON/.test(texto)) {
+    iconesEncontrados.push('ferro-baixo');
+  }
+
+  // ── Limpeza a seco ────────────────────────────────────
+  // OCR retorna "P", "(P)", "F", "(F)", "W", "(W)" após símbolo círculo
+  if (/NÃO\s*LIMPEZA|NAO\s*LIMPEZA|X/.test(texto) && /SECO|DRY/.test(texto)) {
+    iconesEncontrados.push('nao-limpeza-seco');
+  } else if (/\(W\)|W/.test(texto)) {
+    iconesEncontrados.push('limpeza-seco-w');
+  } else if (/\(F\)|F/.test(texto)) {
+    iconesEncontrados.push('limpeza-seco-f');
+  } else if (/\(P\)|P/.test(texto)) {
+    iconesEncontrados.push('limpeza-seco-p');
+  }
+
+  // Deduplica
+  return iconesEncontrados.filter(function(v, i, a) { return a.indexOf(v) === i; });
+}
+
+function renderIconesLavagem(instrucoes) {
+  var icones = mapearIconesLavagem(instrucoes);
+  if (!icones.length) return '';
+
+  var h = '<div style="border-top:0.5px solid var(--border);padding:10px 14px;background:#fafaf7">';
+  h += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Instruções de lavagem</div>';
+  h += '<div class="lavagem-icons">';
+  icones.forEach(function(chave) {
+    var ic = ICONES_LAVAGEM[chave];
+    if (!ic) return;
+    h += '<div class="lavagem-icon">' + ic.svg + '<span class="lavagem-icon-label">' + ic.label + '</span></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
 function carregarEtiquetas() {
   fetch('https://www.googleapis.com/drive/v3/files/'+JSON_ETIQUETAS_ID+'?alt=media', {headers:{Authorization:'Bearer '+token}})
   .then(function(r){ return r.ok ? r.json() : null; })
@@ -358,11 +542,15 @@ function renderEtiqueta(info) {
   if(e.gramatura)  h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Gramatura</div><div class="etiqueta-item-value">'+e.gramatura+'</div></div>';
   if(e.origem)     h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Origem</div><div class="etiqueta-item-value">'+e.origem+'</div></div>';
   if(e.composicao) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Composição</div><div class="etiqueta-item-value">'+e.composicao+'</div></div>';
-  if(e.instrucoes&&e.instrucoes.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Instruções de lavagem</div><div class="etiqueta-item-value">'+e.instrucoes.join(' · ')+'</div></div>';
+  // instruções de lavagem são renderizadas como ícones separadamente
   if(e.outros&&e.outros.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Outras informações</div><div class="etiqueta-item-value">'+e.outros.join(' | ')+'</div></div>';
   h+='</div>';
   if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">📷 Ver foto da etiqueta</a>';
   h+='</div>';
+  // Adiciona ícones de lavagem
+  if(e.instrucoes&&e.instrucoes.length) h+=renderIconesLavagem(e.instrucoes);
+  // Também tenta extrair do texto completo se instrucoes vazio
+  else if(e.textoCompleto) h+=renderIconesLavagem([e.textoCompleto]);
   return h;
 }
 
