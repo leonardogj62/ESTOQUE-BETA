@@ -231,7 +231,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <!-- PREÇOS -->
 <div id="tela-precos" class="screen">
   <div id="bloco-auth-precos">
-    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🏷️</div><div class="auth-title">Tabela de Preços</div><div class="auth-sub">Conecte ao Google Drive para usar esta função.</div></div>
+    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🏷</div><div class="auth-title">Tabela de Preços</div><div class="auth-sub">Conecte ao Google Drive para usar esta função.</div></div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
   </div>
   <div id="bloco-precos" style="display:none">
@@ -254,7 +254,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div id="area-data-prog" style="display:none">
       <p class="section-label">Data de programação (fallback)</p>
-      <div class="info-box">ℹ️ Usado quando a data não for identificada automaticamente na tabela.</div>
+      <div class="info-box">ℹ Usado quando a data não for identificada automaticamente na tabela.</div>
       <div class="data-prog-box">
         <div class="data-prog-title">Quinzena / Mês / Ano</div>
         <div class="data-prog-selects">
@@ -399,7 +399,7 @@ function mostrarBotoesAuth() {
 function onAutenticado() {
   ['bloco-auth-comparar','bloco-auth-buscar','bloco-auth-precos'].forEach(function(id){document.getElementById(id).style.display='none';});
   ['bloco-comparar','bloco-buscar','bloco-precos'].forEach(function(id){document.getElementById(id).style.display='block';});
-  document.getElementById('header-status').textContent = 'Conectado ao Drive ✓';
+  document.getElementById('header-status').textContent = 'Conectado ao Drive OK';
   buscarArquivos();
   carregarEtiquetas();
 }
@@ -619,42 +619,41 @@ function mostrarDiagnostico() {
   box.style.display = 'block';
   var lines = [];
   var total = Object.keys(dadosEtiquetas).length;
-  lines.push('=== DIAGNÓSTICO ETIQUETAS ===');
+  lines.push('=== DIAGNOSTICO ETIQUETAS ===');
   lines.push('JSON ID: ' + JSON_ETIQUETAS_ID);
   lines.push('Total produtos com etiqueta: ' + total);
   lines.push('Total produtos no estoque: ' + todosProdutos.length);
   if (total > 0) {
     lines.push('');
     lines.push('Nomes no JSON (primeiros 8):');
-    Object.keys(dadosEtiquetas).slice(0,8).forEach(function(k){ lines.push('  • ' + k); });
+    Object.keys(dadosEtiquetas).slice(0,8).forEach(function(k){ lines.push('  - ' + k); });
     lines.push('');
     lines.push('Nomes no estoque (primeiros 5):');
     todosProdutos.slice(0,5).forEach(function(p){
       var et = buscarEtiquetaProduto(p.nome);
-      lines.push('  • ' + p.nome + (et ? ' ✅' : ' ❌'));
+      lines.push('  - ' + p.nome + (et ? ' [ok]' : ' ❌'));
     });
   } else {
     lines.push('');
-    lines.push('⚠️ JSON vazio ou não carregado!');
+    lines.push('JSON vazio ou nao carregado!');
     lines.push('Tentando carregar agora...');
     carregarEtiquetas();
   }
-  box.textContent = lines.join('
-');
+  box.textContent = lines.join('\n');
 }
 
 // Diagnóstico — chame no console do browser: diagnosticoEtiquetas()
 function diagnosticoEtiquetas() {
   var total = Object.keys(dadosEtiquetas).length;
-  console.log('=== DIAGNÓSTICO ETIQUETAS ===');
+  console.log('=== DIAGNOSTICO ETIQUETAS ===');
   console.log('Total de produtos com etiqueta: '+total);
   if(total > 0) {
     console.log('Primeiros 5 nomes no JSON:');
-    Object.keys(dadosEtiquetas).slice(0,5).forEach(function(k){ console.log(' → '+k); });
+    Object.keys(dadosEtiquetas).slice(0,5).forEach(function(k){ console.log(' -> '+k); });
     console.log('Primeiros 3 produtos no estoque:');
-    todosProdutos.slice(0,3).forEach(function(p){ console.log(' → "'+p.nome+'" → normEt: "'+normEt(p.nome)+'"'); });
+    todosProdutos.slice(0,3).forEach(function(p){ console.log(' -> "'+p.nome+'" -> normEt: "'+normEt(p.nome)+'"'); });
   } else {
-    console.log('⚠️ dadosEtiquetas está vazio! JSON não foi carregado.');
+    console.log('dadosEtiquetas vazio! JSON nao foi carregado.');
     console.log('ID do JSON: '+JSON_ETIQUETAS_ID);
   }
 }
@@ -665,7 +664,7 @@ function normEt(t) {
 function renderEtiqueta(info) {
   if (!info||!info.etiquetas||!info.etiquetas.length) return '';
   var e = info.etiquetas[0];
-  var h = '<div class="etiqueta-section"><div class="etiqueta-title">🏷️ Etiqueta</div><div class="etiqueta-grid">';
+  var h = '<div class="etiqueta-section"><div class="etiqueta-title">[tag] Etiqueta</div><div class="etiqueta-grid">';
   if(e.referencia) h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Referência</div><div class="etiqueta-item-value">'+e.referencia+'</div></div>';
   if(e.largura)    h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Largura</div><div class="etiqueta-item-value">'+e.largura+'</div></div>';
   if(e.gramatura)  h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Gramatura</div><div class="etiqueta-item-value">'+e.gramatura+'</div></div>';
@@ -674,7 +673,7 @@ function renderEtiqueta(info) {
   // instruções de lavagem são renderizadas como ícones separadamente
   if(e.outros&&e.outros.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Outras informações</div><div class="etiqueta-item-value">'+e.outros.join(' | ')+'</div></div>';
   h+='</div>';
-  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">📷 Ver foto da etiqueta</a>';
+  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">[foto] Ver foto da etiqueta</a>';
   h+='</div>';
   // Adiciona ícones de lavagem
   if(e.instrucoes&&e.instrucoes.length) h+=renderIconesLavagem(e.instrucoes);
@@ -694,7 +693,7 @@ function buscarArquivos() {
   .then(function(data){
     document.getElementById('loading-arquivos').style.display='none';
     var files=(data.files||[]).sort(function(a,b){return extrairDataDoNome(b.name)-extrairDataDoNome(a.name);});
-    if(files.length<2){document.getElementById('area-arquivos').style.display='block';document.getElementById('info-arquivos').innerHTML='<div class="empty-state"><div class="empty-icon">📁</div><p>São necessários pelo menos 2 arquivos para comparar.</p></div>';document.getElementById('btn-comparar').disabled=true;return;}
+    if(files.length<2){document.getElementById('area-arquivos').style.display='block';document.getElementById('info-arquivos').innerHTML='<div class="empty-state"><div class="empty-icon">[pasta]</div><p>São necessários pelo menos 2 arquivos para comparar.</p></div>';document.getElementById('btn-comparar').disabled=true;return;}
     arquivoAtual=files[0]; arquivoAnterior=files[1];
     document.getElementById('info-arquivos').innerHTML=renderFileInfo(arquivoAtual,'atual','Estoque atual')+renderFileInfo(arquivoAnterior,'anterior','Estoque anterior');
     document.getElementById('btn-comparar').disabled=false;
@@ -705,7 +704,7 @@ function buscarArquivos() {
 function extrairDataDoNome(n){var m=n.match(/(\d{2})\.(\d{2})\.(\d{2})[\.\s]/);if(m)return new Date(2000+parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1])).getTime();return 0;}
 function renderFileInfo(f,tipo,label){
   var d=extrairDataDoNome(f.name);var ds=d>0?new Date(d).toLocaleDateString('pt-BR'):new Date(f.modifiedTime).toLocaleDateString('pt-BR');
-  return '<div class="file-info"><div class="file-icon">📊</div><div style="flex:1"><div class="file-name">'+f.name+'</div><div class="file-date">'+ds+'</div></div><span class="file-badge '+tipo+'">'+label+'</span></div>';
+  return '<div class="file-info"><div class="file-icon">[xls]</div><div style="flex:1"><div class="file-name">'+f.name+'</div><div class="file-date">'+ds+'</div></div><span class="file-badge '+tipo+'">'+label+'</span></div>';
 }
 function downloadArquivo(id){
   return fetch('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media',{headers:{Authorization:'Bearer '+token}})
@@ -744,7 +743,7 @@ function compararEstoques(){
   document.getElementById('btn-comparar').disabled=true;
   Promise.all([downloadArquivo(arquivoAnterior.id),downloadArquivo(arquivoAtual.id)])
   .then(function(r){dadosAnterior=r[0];dadosAtual=r[1];renderComparacao();document.getElementById('btn-comparar').disabled=false;})
-  .catch(function(){document.getElementById('resultado-comparacao').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao baixar arquivos.</p></div>';document.getElementById('btn-comparar').disabled=false;});
+  .catch(function(){document.getElementById('resultado-comparacao').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>Erro ao baixar arquivos.</p></div>';document.getElementById('btn-comparar').disabled=false;});
 }
 function renderComparacao(){
   var esg=[],red=[],aum=[],nov=[],vol=[];
@@ -777,14 +776,14 @@ function renderComparacao(){
   document.getElementById('resultado-comparacao').innerHTML=h;
 }
 function renderItens(lista){
-  if(!lista.length)return '<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum item nesta categoria</p></div>';
+  if(!lista.length)return '<div class="empty-state"><div class="empty-icon">[ok]</div><p>Nenhum item nesta categoria</p></div>';
   var labs={esgotado:'Esgotado',reduziu:'Reduziu',aumentou:'Aumentou',novo:'Novo',voltou:'Voltou ao estoque'};
   var cqs={esgotado:'red',reduziu:'amber',aumentou:'green',novo:'blue',voltou:'purple'};
   return lista.map(function(item){
     var cq=cqs[item.tipo];
     return '<div class="result-item '+item.tipo+'"><div class="result-produto">'+item.produto+'<span class="badge '+item.tipo+'">'+labs[item.tipo]+'</span></div>'
       +'<div class="result-cor">'+item.cor+(item.processo?' · '+item.processo:'')+'</div>'
-      +'<div class="result-qtd">'+(item.tipo!=='novo'&&item.tipo!=='voltou'?'<span class="qtd-old">'+Math.round(item.qtdAnt)+' m</span><span class="qtd-arrow">→</span>':'')
+      +'<div class="result-qtd">'+(item.tipo!=='novo'&&item.tipo!=='voltou'?'<span class="qtd-old">'+Math.round(item.qtdAnt)+' m</span><span class="qtd-arrow">-></span>':'')
       +'<span class="qtd-new '+cq+'">'+(item.tipo==='esgotado'?'zerado':Math.round(item.qtdAtu)+' m')+'</span></div></div>';
   }).join('');
 }
@@ -820,19 +819,19 @@ function carregarUltimoEstoque(){
     todosProdutos=Object.keys(mapa).sort().map(function(n){return{nome:n,cores:mapa[n]};});
     document.getElementById('input-busca').value='';renderProdutos(todosProdutos);document.getElementById('area-busca-produto').style.display='block';
   })
-  .catch(function(){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao carregar.</p></div>';document.getElementById('area-busca-produto').style.display='block';});
+  .catch(function(){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>Erro ao carregar.</p></div>';document.getElementById('area-busca-produto').style.display='block';});
 }
 function filtrarProdutos(){
   var q=document.getElementById('input-busca').value.toLowerCase().trim();
   renderProdutos(!q?todosProdutos:todosProdutos.filter(function(p){return p.nome.toLowerCase().includes(q)||p.cores.some(function(c){return c.cor.toLowerCase().includes(q)||(c.processo&&c.processo.toLowerCase().includes(q));});}));
 }
 function renderProdutos(lista){
-  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>';return;}
+  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">[busca]</div><p>Nenhum produto encontrado</p></div>';return;}
   document.getElementById('lista-produtos').innerHTML=lista.map(function(p,idx){
     var total=p.cores.reduce(function(s,c){return s+c.qtd;},0);
     var etInfo=buscarEtiquetaProduto(p.nome);
     var temEt=etInfo&&etInfo.etiquetas&&etInfo.etiquetas.length>0;
-    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">🏷️</span>':'';
+    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">[tag]</span>':'';
     return '<div class="produto-card" id="prod-'+idx+'">'
       +'<div class="produto-header" onclick="toggleProduto('+idx+')">'
       +'<div><div class="produto-nome">'+p.nome+etTag+'</div><div class="produto-total">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div></div>'
@@ -970,7 +969,7 @@ function normPreco(t){
 }
 
 function onTabelaCarregada(nome,qtd){
-  document.getElementById('upload-tabela-label').textContent='✅ '+nome+' ('+qtd+' produtos)';
+  document.getElementById('upload-tabela-label').textContent='[ok] '+nome+' ('+qtd+' produtos)';
   document.getElementById('upload-tabela-area').classList.add('done');
   document.getElementById('area-data-prog').style.display='block';
   document.getElementById('area-cruzar').style.display='block';
@@ -1004,7 +1003,7 @@ function buscarTabelaEmail(){
   })
   .catch(function(e){
     document.getElementById('loading-precos').style.display='none';
-    document.getElementById('resultado-precos').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>'+(e.message||'Erro ao buscar.')+'</p></div>';
+    document.getElementById('resultado-precos').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>'+(e.message||'Erro ao buscar.')+'</p></div>';
   });
 }
 
@@ -1026,7 +1025,7 @@ function cruzarPrecosEstoque(){
     return downloadArquivo(files[0].id);
   })
   .then(function(est){document.getElementById('loading-precos').style.display='none';renderPrecosEstoque(est);})
-  .catch(function(e){document.getElementById('loading-precos').style.display='none';document.getElementById('resultado-precos').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>'+(e.message||'Erro.')+'</p></div>';});
+  .catch(function(e){document.getElementById('loading-precos').style.display='none';document.getElementById('resultado-precos').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>'+(e.message||'Erro.')+'</p></div>';});
 }
 
 function renderPrecosEstoque(estoque){
@@ -1048,7 +1047,7 @@ function renderPrecosEstoque(estoque){
   h+='<div class="stat-card green"><div class="stat-label">Com preço</div><div class="stat-value">'+comPreco.length+'</div></div>';
   h+='<div class="stat-card red"><div class="stat-label">Sem preço</div><div class="stat-value">'+semPreco.length+'</div></div>';
   h+='</div>';
-  h+='<div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="input-precos" placeholder="Filtrar produto..." oninput="filtrarPrecos()"></div>';
+  h+='<div class="search-wrap"><span class="search-icon">[busca]</span><input type="text" id="input-precos" placeholder="Filtrar produto..." oninput="filtrarPrecos()"></div>';
   h+='<div id="lista-precos">'+renderListaPrecos(comPreco,semPreco,dataPadrao)+'</div></div>';
   document.getElementById('resultado-precos').innerHTML=h;
   window._comPreco=comPreco;window._semPreco=semPreco;window._dataPadrao=dataPadrao;
