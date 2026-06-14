@@ -176,6 +176,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div id="bloco-auth-comparar">
     <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🔗</div><div class="auth-title">Conectar ao Google Drive</div><div class="auth-sub">Autorize uma vez e o app buscará os estoques automaticamente.</div></div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
+    <button class="btn btn-secondary" onclick="forcarReconectar()" style="margin-top:8px">🔄 Reconectar (limpar sessão)</button>
   </div>
   <div id="bloco-comparar" style="display:none">
     <p class="section-label">Tipo de estoque</p>
@@ -299,6 +300,15 @@ var todosProdutos = [], _todosResultados = [];
 var tabelaPrecos = {}, dadosEtiquetas = {};
 var fonteSelecionada = 'upload';
 
+// Força reconexão limpando tudo
+function forcarReconectar() {
+  token = null;
+  localStorage.clear();
+  sessionStorage.clear();
+  // Recarrega a página limpa
+  window.location.href = window.location.origin + window.location.pathname;
+}
+
 // Anos no seletor
 (function(){
   var sel = document.getElementById('sel-ano');
@@ -309,28 +319,79 @@ var fonteSelecionada = 'upload';
 
 // ── AUTH ───────────────────────────────────────────────
 function autenticar() {
+  // Limpa token antigo antes de autenticar
+  token = null;
+  localStorage.removeItem('drive_token');
+
+  var redirectUri = window.location.origin + window.location.pathname;
+  // Remove trailing slash para consistência
+  redirectUri = redirectUri.replace(/\/+$/, '') + '/';
+
   var url = 'https://accounts.google.com/o/oauth2/v2/auth'
     + '?client_id=' + CLIENT_ID
-    + '&redirect_uri=' + encodeURIComponent(window.location.href.split('?')[0])
+    + '&redirect_uri=' + encodeURIComponent(redirectUri)
     + '&response_type=token'
     + '&scope=' + encodeURIComponent(SCOPES)
-    + '&prompt=consent';
+    + '&prompt=consent'
+    + '&access_type=online';
+
   window.location.href = url;
 }
 function verificarToken() {
-  var hash = window.location.hash;
+  // Tenta pegar token do hash (retorno do OAuth)
+  var hash = window.location.hash || '';
   if (hash.includes('access_token=')) {
-    var p = new URLSearchParams(hash.replace('#','?'));
-    token = p.get('access_token'); window.location.hash = '';
-    localStorage.setItem('drive_token', token); onAutenticado(); return;
+    try {
+      var params = new URLSearchParams(hash.replace(/^#/, ''));
+      var tk = params.get('access_token');
+      if (tk) {
+        token = tk;
+        history.replaceState(null, '', window.location.pathname); // limpa hash da URL
+        localStorage.setItem('drive_token', token);
+        onAutenticado();
+        return;
+      }
+    } catch(e) { console.log('Erro ao parsear token:', e); }
   }
+
+  // Tenta token salvo no localStorage
   var saved = localStorage.getItem('drive_token');
-  if (saved) { token = saved; verificarTokenValido(); }
+  if (saved) {
+    token = saved;
+    verificarTokenValido();
+    return;
+  }
+
+  // Sem token — mostra tela de login
+  mostrarBotoesAuth();
 }
 function verificarTokenValido() {
   fetch('https://www.googleapis.com/drive/v3/about?fields=user', {headers:{Authorization:'Bearer '+token}})
-  .then(function(r){ if(r.ok) onAutenticado(); else { token=null; localStorage.removeItem('drive_token'); }})
-  .catch(function(){ token=null; });
+  .then(function(r){
+    if(r.ok) {
+      onAutenticado();
+    } else {
+      // Token expirado — limpa e mostra botão de conectar
+      token=null;
+      localStorage.removeItem('drive_token');
+      mostrarBotoesAuth();
+    }
+  })
+  .catch(function(){
+    token=null;
+    localStorage.removeItem('drive_token');
+    mostrarBotoesAuth();
+  });
+}
+
+function mostrarBotoesAuth() {
+  ['bloco-auth-comparar','bloco-auth-buscar','bloco-auth-precos'].forEach(function(id){
+    document.getElementById(id).style.display='block';
+  });
+  ['bloco-comparar','bloco-buscar','bloco-precos'].forEach(function(id){
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('header-status').textContent = 'Clique em Conectar';
 }
 function onAutenticado() {
   ['bloco-auth-comparar','bloco-auth-buscar','bloco-auth-precos'].forEach(function(id){document.getElementById(id).style.display='none';});
