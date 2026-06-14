@@ -744,14 +744,29 @@ function parsearEstoque(wb){
     var sheet=wb.Sheets[wb.SheetNames[si]];
     var rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
     var prod='',cor='',proc='';
+    var processoColIdx=-1;
+    var nextRowIsData=false;
     for(var i=0;i<rows.length;i++){
       var row=rows[i];
       var c0=String(row[0]||'').trim(),c1=String(row[1]||'').trim(),c2=String(row[2]||'').trim();
       var rs=row.map(function(c){return String(c||'');}).join(' ');
-      var mp=rs.match(/[Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo]\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
-      if(mp&&rs.toLowerCase().indexOf('processo')>=0){proc=mp[1].trim();continue;}
+      // Formato 1: "Processo: XXXXX" linha standalone com dois pontos
+      var mp=rs.match(/[Pp]rocesso\s*:\s*([A-Z0-9\-\.\/]+)/i);
+      if(mp&&mp[1]&&mp[1].trim().length>1&&mp[1].trim()!=='0'){proc=mp[1].trim();processoColIdx=-1;continue;}
+      // Detectar cabecalho de coluna "Processo" (formato Fem PE)
+      var hasProcessoHeader=row.some(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
+      if(hasProcessoHeader&&!mp){
+        processoColIdx=row.findIndex(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
+        nextRowIsData=true;
+        continue;
+      }
+      if(nextRowIsData&&processoColIdx>=0){
+        nextRowIsData=false;
+        var procVal=String(row[processoColIdx]||'').trim();
+        if(procVal&&procVal.length>1&&!/^\d+$/.test(procVal)&&procVal!=='0'){proc=procVal;}
+      }
       var nc=(c0.startsWith('Nome :')||c0.startsWith('Nome:'))?c0:(c1.startsWith('Nome :')||c1.startsWith('Nome:'))?c1:null;
-      if(nc){var m=nc.match(/Nome\s*:\s*(.+?)(?:\s*\(|$)/);prod=m?m[1].trim():nc.replace(/Nome\s*:/i,'').trim();cor='';continue;}
+      if(nc){var m=nc.match(/Nome\s*:\s*(.+?)(?:\s*\(|$)/);prod=m?m[1].trim():nc.replace(/Nome\s*:/i,'').trim();cor='';proc='';processoColIdx=-1;continue;}
       var cc=(c0.startsWith('Cor :')||c0.startsWith('Cor:'))?c0:(c1.startsWith('Cor :')||c1.startsWith('Cor:'))?c1:(c2.startsWith('Cor :')||c2.startsWith('Cor:'))?c2:null;
       if(cc){
         var mc=cc.match(/Cor\s*:\s*(.+?)(?:\s*\(|$)/);cor=mc?mc[1].trim():cc.replace(/Cor\s*:/i,'').trim();
