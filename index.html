@@ -518,16 +518,47 @@ function renderIconesLavagem(instrucoes) {
 
 function carregarEtiquetas() {
   fetch('https://www.googleapis.com/drive/v3/files/'+JSON_ETIQUETAS_ID+'?alt=media', {headers:{Authorization:'Bearer '+token}})
-  .then(function(r){ return r.ok ? r.json() : null; })
-  .then(function(d){ if(d) dadosEtiquetas=d; })
-  .catch(function(){});
+  .then(function(r){
+    if(!r.ok) { console.log('Etiquetas: erro HTTP '+r.status); return null; }
+    return r.json();
+  })
+  .then(function(d){
+    if(!d) { console.log('Etiquetas: JSON vazio ou inválido'); return; }
+    dadosEtiquetas = d;
+    var total = Object.keys(d).length;
+    console.log('Etiquetas carregadas: '+total+' produtos');
+    // Re-renderiza lista de produtos se já estiver carregada
+    if(todosProdutos.length > 0) renderProdutos(todosProdutos);
+  })
+  .catch(function(e){ console.log('Etiquetas: erro ao carregar - '+e); });
 }
 function buscarEtiquetaProduto(nome) {
+  if(!nome) return null;
   var chave = normEt(nome);
+  // Busca exata
   if (dadosEtiquetas[chave]) return dadosEtiquetas[chave];
+  // Busca parcial — nome do estoque contém parte do nome da etiqueta ou vice-versa
   var ks = Object.keys(dadosEtiquetas);
-  for (var i=0;i<ks.length;i++) { if(ks[i].includes(chave)||chave.includes(ks[i])) return dadosEtiquetas[ks[i]]; }
+  for (var i=0;i<ks.length;i++) {
+    if(ks[i].includes(chave) || chave.includes(ks[i])) return dadosEtiquetas[ks[i]];
+  }
   return null;
+}
+
+// Diagnóstico — chame no console do browser: diagnosticoEtiquetas()
+function diagnosticoEtiquetas() {
+  var total = Object.keys(dadosEtiquetas).length;
+  console.log('=== DIAGNÓSTICO ETIQUETAS ===');
+  console.log('Total de produtos com etiqueta: '+total);
+  if(total > 0) {
+    console.log('Primeiros 5 nomes no JSON:');
+    Object.keys(dadosEtiquetas).slice(0,5).forEach(function(k){ console.log(' → '+k); });
+    console.log('Primeiros 3 produtos no estoque:');
+    todosProdutos.slice(0,3).forEach(function(p){ console.log(' → "'+p.nome+'" → normEt: "'+normEt(p.nome)+'"'); });
+  } else {
+    console.log('⚠️ dadosEtiquetas está vazio! JSON não foi carregado.');
+    console.log('ID do JSON: '+JSON_ETIQUETAS_ID);
+  }
 }
 function normEt(t) {
   if(!t) return '';
