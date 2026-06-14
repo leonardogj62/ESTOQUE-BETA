@@ -319,26 +319,24 @@ function forcarReconectar() {
 
 // ── AUTH ───────────────────────────────────────────────
 function autenticar() {
-  // Limpa token antigo antes de autenticar
   token = null;
   localStorage.removeItem('drive_token');
 
-  var redirectUri = window.location.origin + window.location.pathname;
-  // Remove trailing slash para consistência
-  redirectUri = redirectUri.replace(/\/+$/, '') + '/';
+  var redirectUri = 'https://leonardogj62.github.io/ESTOQUE-BETA/';
 
   var url = 'https://accounts.google.com/o/oauth2/v2/auth'
     + '?client_id=' + CLIENT_ID
     + '&redirect_uri=' + encodeURIComponent(redirectUri)
     + '&response_type=token'
     + '&scope=' + encodeURIComponent(SCOPES)
-    + '&prompt=consent'
-    + '&access_type=online';
+    + '&prompt=consent';
 
-  window.location.href = url;
+  // Redirect direto — funciona em todos os browsers incluindo Safari/iOS
+  window.location.assign(url);
 }
 function verificarToken() {
-  // Tenta pegar token do hash (retorno do OAuth)
+  // CASO 1: retorno do redirect OAuth (mobile/Safari)
+  // O Google redireciona de volta com #access_token=... na URL
   var hash = window.location.hash || '';
   if (hash.includes('access_token=')) {
     try {
@@ -346,15 +344,20 @@ function verificarToken() {
       var tk = params.get('access_token');
       if (tk) {
         token = tk;
-        history.replaceState(null, '', window.location.pathname); // limpa hash da URL
         localStorage.setItem('drive_token', token);
+        // Limpa o hash da URL sem recarregar
+        if (history.replaceState) {
+          history.replaceState(null, '', window.location.pathname);
+        } else {
+          window.location.hash = '';
+        }
         onAutenticado();
         return;
       }
-    } catch(e) { console.log('Erro ao parsear token:', e); }
+    } catch(e) { console.log('Erro ao parsear hash OAuth:', e); }
   }
 
-  // Tenta token salvo no localStorage
+  // CASO 2: token salvo de sessão anterior
   var saved = localStorage.getItem('drive_token');
   if (saved) {
     token = saved;
@@ -362,7 +365,7 @@ function verificarToken() {
     return;
   }
 
-  // Sem token — mostra tela de login
+  // CASO 3: sem token — mostra tela de login
   mostrarBotoesAuth();
 }
 function verificarTokenValido() {
