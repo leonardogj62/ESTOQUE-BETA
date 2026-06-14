@@ -744,35 +744,20 @@ function parsearEstoque(wb){
     var sheet=wb.Sheets[wb.SheetNames[si]];
     var rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
     var prod='',cor='',proc='';
-    var processoColIdx=-1;
-    var nextRowIsData=false;
     for(var i=0;i<rows.length;i++){
       var row=rows[i];
       var c0=String(row[0]||'').trim(),c1=String(row[1]||'').trim(),c2=String(row[2]||'').trim();
       var rs=row.map(function(c){return String(c||'');}).join(' ');
-      // Formato 1: "Processo: XXXXX" linha standalone com dois pontos
-      var mp=rs.match(/[Pp]rocesso\s*:\s*([A-Z0-9\-\.\/]+)/i);
-      if(mp&&mp[1]&&mp[1].trim().length>1&&mp[1].trim()!=='0'){proc=mp[1].trim();processoColIdx=-1;continue;}
-      // Detectar cabecalho de coluna "Processo" (formato Fem PE)
-      var hasProcessoHeader=row.some(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
-      if(hasProcessoHeader&&!mp){
-        processoColIdx=row.findIndex(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
-        nextRowIsData=true;
-        continue;
-      }
-      if(nextRowIsData&&processoColIdx>=0){
-        nextRowIsData=false;
-        var procVal=String(row[processoColIdx]||'').trim();
-        if(procVal&&procVal.length>1&&!/^\d+$/.test(procVal)&&procVal!=='0'){proc=procVal;}
-      }
+      var mp=rs.match(/[Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo]\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
+      if(mp&&rs.toLowerCase().indexOf('processo')>=0){proc=mp[1].trim();continue;}
       var nc=(c0.startsWith('Nome :')||c0.startsWith('Nome:'))?c0:(c1.startsWith('Nome :')||c1.startsWith('Nome:'))?c1:null;
-      if(nc){var m=nc.match(/Nome\s*:\s*(.+?)(?:\s*\(|$)/);prod=m?m[1].trim():nc.replace(/Nome\s*:/i,'').trim();cor='';proc='';processoColIdx=-1;continue;}
+      if(nc){var m=nc.match(/Nome\s*:\s*(.+?)(?:\s*\(|$)/);prod=m?m[1].trim():nc.replace(/Nome\s*:/i,'').trim();cor='';continue;}
       var cc=(c0.startsWith('Cor :')||c0.startsWith('Cor:'))?c0:(c1.startsWith('Cor :')||c1.startsWith('Cor:'))?c1:(c2.startsWith('Cor :')||c2.startsWith('Cor:'))?c2:null;
       if(cc){
         var mc=cc.match(/Cor\s*:\s*(.+?)(?:\s*\(|$)/);cor=mc?mc[1].trim():cc.replace(/Cor\s*:/i,'').trim();
         var qtde=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
         if(isNaN(qtde)||qtde<=0){for(var j=0;j<row.length;j++){var cell=String(row[j]||'').trim();if(!cell||cell==='Qtde em Estoque'||cell==='SubClasse'||cell==='0')continue;var n=parseFloat(cell.replace(/\./g,'').replace(',','.'));if(!isNaN(n)&&n>0&&/^\d/.test(cell)){qtde=n;break;}}}
-        if(prod&&cor&&qtde>0){var chave=prod+'||'+cor;if(!itens[chave])itens[chave]={produto:prod,cor:cor,qtd:0,processo:proc};itens[chave].qtd+=qtde;}
+        if(prod&&cor&&qtde>0){var prodNorm=prod.replace(/\s+/g,' ').trim();var corNorm=cor.replace(/\s+/g,' ').trim();var chave=prodNorm+'||'+corNorm;if(!itens[chave])itens[chave]={produto:prodNorm,cor:corNorm,qtd:0,processo:proc};itens[chave].qtd+=qtde;}
         continue;
       }
     }
@@ -852,34 +837,13 @@ function carregarUltimoEstoque(){
   .then(function(data){
     var files=(data.files||[]).sort(function(a,b){return extrairDataDoNome(b.name)-extrairDataDoNome(a.name);});
     if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
-    window._arquivoNome=files[0].name;
     return downloadArquivo(files[0].id);
   })
   .then(function(dados){
     if(!dados)return;
     document.getElementById('loading-busca').style.display='none';
-    // Determinar tipo (PE ou Programação) e data de chegada
-    var PASTAS_PE=['1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN','1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw'];
-    var isPE=PASTAS_PE.indexOf(pastaBusca)>=0;
-    var chegadaInfo='';
-    if(!isPE){
-      // Extrair quinzena do nome do arquivo
-      var nArq=window._arquivoNome||'';
-      var mQ=nArq.match(/(1|2)[ªa\.\-_\s]*quinzena[\s\-_]*(de[\s]+)?([A-Za-zçãõéêáàúü]+)[\s\-_\.]*(\'?\d{2,4})/i);
-      if(mQ){chegadaInfo=(mQ[1]==='1'?'1ª':'2ª')+' Quinzena de '+mQ[3].charAt(0).toUpperCase()+mQ[3].slice(1).toLowerCase()+(mQ[4]?'/'+mQ[4].replace("'",''):'');}
-      else{
-        // Try format with number month: 1Q07-26 or 1-QUINZENA-JUL-26
-        var mQ2=nArq.match(/(1|2)[\s\-_]?Q[\s\-_]?([A-Za-z]{3,})[\s\-_\.]*(\d{2,4})/i);
-        if(mQ2){chegadaInfo=(mQ2[1]==='1'?'1ª':'2ª')+' Quinzena de '+mQ2[2].charAt(0).toUpperCase()+mQ2[2].slice(1).toLowerCase()+'/'+mQ2[3];}
-      }
-    }
-    var mapa={};
-    Object.keys(dados).forEach(function(c){
-      var item=dados[c];
-      if(!mapa[item.produto])mapa[item.produto]=[];
-      mapa[item.produto].push({cor:item.cor,qtd:item.qtd,processo:item.processo});
-    });
-    todosProdutos=Object.keys(mapa).sort().map(function(n){return{nome:n,cores:mapa[n],isPE:isPE,chegada:chegadaInfo};});
+    var mapa={};Object.keys(dados).forEach(function(c){var item=dados[c];if(!mapa[item.produto])mapa[item.produto]=[];mapa[item.produto].push({cor:item.cor,qtd:item.qtd,processo:item.processo});});
+    todosProdutos=Object.keys(mapa).sort().map(function(n){return{nome:n,cores:mapa[n]};});
     document.getElementById('input-busca').value='';renderProdutos(todosProdutos);document.getElementById('area-busca-produto').style.display='block';
   })
   .catch(function(){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>Erro ao carregar.</p></div>';document.getElementById('area-busca-produto').style.display='block';});
@@ -932,8 +896,7 @@ function renderProdutos(lista){
       +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
       +'<span class="produto-nome">'+p.nome+'</span>'+etTag+precoBtn+'</div>'
       +specsHtml
-      +(p.isPE?'<div style="margin-top:3px"><span style="background:#eaf3de;color:#27500a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">🟢 Pronta Entrega</span></div>':(p.chegada?'<div style="margin-top:3px"><span style="background:#e6f1fb;color:#0c447c;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">📅 '+p.chegada+'</span></div>':''))
-    +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div>'
+      +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div>'
       +'</div>'
       +'<span class="produto-arrow" style="flex-shrink:0">▼</span></div>'
       +precoPanel
@@ -941,7 +904,7 @@ function renderProdutos(lista){
       +p.cores.map(function(c){
         return '<div class="cor-item"><div style="flex:1">'
           +'<div class="cor-nome">'+c.cor+'</div>'
-          +(c.processo?'<div class="cor-processo">Processo: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">⚠ Sem processo</div>')
+          +(c.processo?'<div class="cor-processo">Lote: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">⚠ Sem processo</div>')
           +'</div><div class="cor-qtd">'+Math.round(c.qtd)+' m</div></div>';
       }).join('')
       +(temEt?renderEtiqueta(etInfo):'')
@@ -1103,26 +1066,14 @@ function parsearTabelaXlsx(wb){
     var nome=String(row[0]||'').trim().toUpperCase();
     if(!nome||nome.length<3)continue;
     var precos=[];
-    // Planilha tem formato: Nome | Unid | R$ | Tab1 | R$ | Tab2 | R$ | Tab3 | R$ | Tab4 | Disponib
-    // Tenta primeiro o formato separado (R$ em coluna própria: índices 3,5,7,9)
-    var idxsSep=[3,5,7,9];
-    for(var k=0;k<idxsSep.length;k++){
-      var v=String(row[idxsSep[k]]||'').replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.').trim();
+    for(var j=2;j<=5;j++){
+      var v=String(row[j]||'').replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.').trim();
       var mt=v.match(/(\d+[\.,]\d+)\s*MT/i);if(mt)v=mt[1].replace(',','.');
       var n=parseFloat(v);if(!isNaN(n)&&n>0)precos.push(n);
     }
-    // Fallback: tenta formato compacto (índices 2,3,4,5) se não encontrou preços
-    if(!precos.length){
-      for(var j=2;j<=5;j++){
-        var v2=String(row[j]||'').replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.').trim();
-        var mt2=v2.match(/(\d+[\.,]\d+)\s*MT/i);if(mt2)v2=mt2[1].replace(',','.');
-        var n2=parseFloat(v2);if(!isNaN(n2)&&n2>0)precos.push(n2);
-      }
-    }
     if(!precos.length)continue;
-    // Disponibilidade: no formato separado está no índice 10, no compacto índice 6 ou 5
-    var disp=String(row[10]||row[6]||row[5]||'').trim();
-    var chegada=String(row[11]||row[7]||'').trim();
+    var disp=String(row[6]||row[5]||'').trim();
+    var chegada=String(row[7]||'').trim();
     result[normPreco(nome)]={nome:nome,unidade:String(row[1]||'MT').trim(),precos:precos,disponibilidade:disp,chegada:chegada};
   }
   return result;
