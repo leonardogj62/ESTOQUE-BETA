@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Estoque Beta">
 <title>Estoque Beta</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -867,8 +868,41 @@ function carregarTabelaUpload(input){
       onTabelaCarregada(file.name,Object.keys(tabelaPrecos).length);
     };
     reader.readAsArrayBuffer(file);
+  } else if(nome.endsWith('.pdf')){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var typedArray=new Uint8Array(e.target.result);
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.getDocument({data:typedArray}).promise.then(function(pdf){
+        var paginas=[];
+        for(var p=1;p<=pdf.numPages;p++){paginas.push(p);}
+        return paginas.reduce(function(chain,pNum){
+          return chain.then(function(acc){
+            return pdf.getPage(pNum).then(function(page){
+              return page.getTextContent().then(function(content){
+                var linhaMap={};
+                content.items.forEach(function(item){
+                  var y=Math.round(item.transform[5]);
+                  if(!linhaMap[y])linhaMap[y]=[];
+                  linhaMap[y].push(item.str);
+                });
+                var ys=Object.keys(linhaMap).map(Number).sort(function(a,b){return b-a;});
+                ys.forEach(function(y){acc.push(linhaMap[y].join(' '));});
+                return acc;
+              });
+            });
+          });
+        },Promise.resolve([]));
+      }).then(function(linhas){
+        tabelaPrecos=parsearTabelaPDF(linhas.join('\n'));
+        onTabelaCarregada(file.name,Object.keys(tabelaPrecos).length);
+      }).catch(function(err){
+        console.error('Erro pdf.js:',err);
+        document.getElementById('upload-tabela-label').textContent='Erro ao ler PDF: '+err.message;
+      });
+    };
+    reader.readAsArrayBuffer(file);
   } else {
-    // PDF, DOC, DOCX — lê como texto e parseia linha por linha
     var reader=new FileReader();
     reader.onload=function(e){
       tabelaPrecos=parsearTabelaPDF(e.target.result);
@@ -878,67 +912,70 @@ function carregarTabelaUpload(input){
   }
 }
 
-// ── PARSER PDF CORRIGIDO ───────────────────────────────
-// Formato da tabela Beta:
-// NOME COMERCIAL | UN | TABELA 26/4 | TABELA 26/5 | TABELA 26/6 | TABELA | DISPONIBILIDADE | CHEGADA
+// ── PARSER PDF ─────────────────────────────────────────
+// Formato da tabela Beta (extraído via pdf.js):
+// NOME COMERCIAL UN TABELA 26/4 TABELA 26/5 TABELA26/6 TABELA DISPONIBILIDADE CHEGADA
 function parsearTabelaPDF(texto){
   var result={};
   var linhas=texto.split(/[\n\r]+/).map(function(l){return l.trim();}).filter(function(l){return l.length>2;});
 
   for(var i=0;i<linhas.length;i++){
     var linha=linhas[i];
+    if(/NOME COMERCIAL|TABELA DE PRE|BETA COMERCIAL|BETA IMPORTADORA/i.test(linha)) continue;
+    if(/^(UN|MT|KG)$/.test(linha)) continue;
+    if(linha.indexOf('R$')<0) continue;
 
-    // Ignora cabeçalhos e rodapés
-    if(/NOME COMERCIAL|TABELA DE PRE|BETA COMERCIAL|BETA IMPORTADORA|^UN$|^MT$|^KG$/i.test(linha)) continue;
+    var precosMT=[];
+    var precosGeral=[];
+    var m;
 
-    // Tenta extrair: NOME ... R$ xx,xx ... R$ xx,xx ... R$ xx,xx ... R$ xx,xx ... DISPONIBILIDADE
-    // Padrão: qualquer texto seguido de 4 preços R$ e depois disponibilidade
-    var precosParts = linha.match(/R\$\s*[\d\.]+(?:[\s,]\s*[\d]+)?/gi) || [];
-    var precos = [];
+    // Pares "R$ valor MT" (precos por metro em itens vendidos em KG)
+    var rgxMT=/R\$\s*([\d]+[,\.][\d]+)\s*MT/gi;
+    while((m=rgxMT.exec(linha))!==null){
+      var n=parseFloat(m[1].replace(',','.'));
+      if(!isNaN(n)&&n>0)precosMT.push(n);
+    }
 
-    precosParts.forEach(function(p){
-      // Extrai todos os valores numéricos de cada trecho R$
-      // Ex: "R$ 21,90" → 21.90 | "R$63,90 KG R$ 41,22 MT" → pega o MT
-      var subPrecos = p.match(/(\d+)[,\.](\d+)/g) || [];
-      subPrecos.forEach(function(sp){
-        var n = parseFloat(sp.replace(',','.'));
-        if(!isNaN(n)&&n>0&&n<9999) precos.push(n);
-      });
-    });
+    // Todos os valores R$ genericos
+    var rgxAll=/R\$\s*([\d]+[,\.][\d]+)/gi;
+    while((m=rgxAll.exec(linha))!==null){
+      var n=parseFloat(m[1].replace(',','.'));
+      if(!isNaN(n)&&n>0&&n<1000)precosGeral.push(n);
+    }
 
-    // Filtra: pega somente os 4 principais valores MT (ignora KG)
-    // Na tabela Beta, os 4 preços MT vêm em ordem crescente
-    if(precos.length<2) continue;
-
-    // Remove preços KG (geralmente muito maiores, ex: 63.90)
-    // Pega os 4 menores que são os preços MT
+    var precos;
+    if(precosMT.length>=2){
+      precos=precosMT;
+    } else {
+      precos=precosGeral;
+    }
+    if(precos.length<1) continue;
     precos.sort(function(a,b){return a-b;});
-    // Remove outliers muito distantes (preços KG)
-    var precosFiltered=precos.filter(function(p){return p<=200;});
-    if(precosFiltered.length<1) continue;
 
-    // Nome: tudo antes do primeiro R$
-    var nomePart = linha.replace(/R\$[\s\S]*/,'').trim();
-    // Remove unidade (MT, KG) do final do nome
-    nomePart = nomePart.replace(/\s+(MT|KG|UN)\s*$/i,'').trim().toUpperCase();
+    var nomePart=linha.split(/R\s*\$/)[0].trim();
+    nomePart=nomePart.replace(/\s+(MT|KG|UN)\s*$/i,'').trim().toUpperCase();
+    nomePart=nomePart.replace(/\s*\(RENDIMENTO[^)]*\)/i,'').trim();
     if(nomePart.length<3) continue;
 
-    // Disponibilidade: P.E ou PROG ...
     var disp='';
     var chegada='';
     if(/P\.E/.test(linha)) disp='P.E';
-    var mProg=linha.match(/PROG[A-ZÇÃÕ\s]*([A-ZÇÃÕ]+)\s*(\d+)[ªa°]\s*QUINZENA/i);
-    if(mProg){disp='PROG';chegada=mProg[2]+'ª Quinzena de '+mProg[1];}
-    else {
-      var mProg2=linha.match(/(PRIMEIRA|SEGUNDA)\s*QUINZ[A-Z]*\s*([A-ZÇÃÕ]+)/i);
-      if(mProg2){disp='PROG';chegada=(mProg2[1].toUpperCase()==='PRIMEIRA'?'1':'2')+'ª Quinzena de '+mProg2[2];}
+    var mProg=linha.match(/PROG\w*\s+([A-Z\u00C0-\u017E]+)\s+(\d+)[\xaa]\s*QUINZENA/i);
+    if(mProg){disp='PROG';chegada=mProg[2]+'\xaa Quinzena de '+mProg[1];}
+    else{
+      var mProg2=linha.match(/(\d+)[\xaa]\s*QUINZENA\s+(?:DE\s+)?([A-Z\u00C0-\u017E]+)/i);
+      if(mProg2){disp='PROG';chegada=mProg2[1]+'\xaa Quinzena de '+mProg2[2];}
     }
 
     var chave=normPreco(nomePart);
-    result[chave]={nome:nomePart,unidade:'MT',precos:precosFiltered.slice(0,4),disponibilidade:disp,chegada:chegada};
+    if(!result[chave]){
+      result[chave]={nome:nomePart,unidade:precosMT.length>=2?'KG':'MT',precos:precos.slice(0,4),disponibilidade:disp,chegada:chegada};
+    }
   }
   return result;
 }
+
+
 
 function parsearTabelaXlsx(wb){
   var result={};
