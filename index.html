@@ -140,6 +140,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .preco-row-value { font-weight: 500; }
 .badge.pe   { background: #eaf3de; color: #27500a; }
 .badge.prog { background: #e6f1fb; color: #0c447c; }
+/* Preços no card de produto */
+.preco-inline-btn { font-size:11px; font-weight:600; padding:3px 9px; border-radius:12px; border:0.5px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; margin-left:8px; white-space:nowrap; }
+.preco-inline-panel { display:none; background:#f5f5f0; border-top:0.5px solid var(--border); padding:10px 14px; }
+.preco-inline-panel.open { display:block; }
+.preco-inline-faixas { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+.preco-inline-faixa { background:var(--surface); border-radius:6px; padding:5px 4px; text-align:center; border:0.5px solid var(--border); }
+.preco-inline-label { font-size:10px; color:var(--text3); margin-bottom:2px; }
+.preco-inline-valor { font-size:12px; font-weight:700; color:var(--accent); }
+.preco-inline-disp { font-size:11px; color:var(--text2); margin-top:6px; }
+/* Tabela salva */
+.tabela-salva-card { background:#eaf3de; border:0.5px solid #c0dd97; border-radius:var(--radius-sm); padding:10px 14px; display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.tabela-salva-nome { font-size:13px; font-weight:600; color:#27500a; flex:1; }
+.tabela-salva-qtd { font-size:11px; color:#4a7a1a; }
+.tabela-salva-del { background:none; border:none; font-size:18px; cursor:pointer; color:#a32d2d; padding:0 4px; }
+/* Processo cor — destaque */
+.cor-processo { font-size:11px; color:#185fa5; font-weight:600; margin-top:2px; }
+/* Etiqueta dentro do header do produto */
+.produto-specs { font-size:11px; color:var(--text3); margin-top:3px; line-height:1.5; }
 .info-box { background: #e6f1fb; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: #0c447c; margin-bottom: 14px; line-height: 1.5; }
 
 /* ETIQUETAS */
@@ -300,6 +318,8 @@ var dadosAnterior = null, dadosAtual = null;
 var todosProdutos = [], _todosResultados = [];
 var tabelaPrecos = {}, dadosEtiquetas = {};
 var fonteSelecionada = 'upload';
+var TABELA_STORAGE_KEY = 'beta_tabela_precos_v1';
+var TABELA_META_KEY    = 'beta_tabela_meta_v1';
 
 // Força reconexão limpando tudo
 function forcarReconectar() {
@@ -403,6 +423,7 @@ function onAutenticado() {
   document.getElementById('header-status').textContent = 'Conectado ao Drive OK';
   buscarArquivos();
   carregarEtiquetas();
+  carregarTabelaSalva();
 }
 
 // ── ETIQUETAS ──────────────────────────────────────────
@@ -510,62 +531,65 @@ function mapearIconesLavagem(instrucoes) {
   var iconesEncontrados = [];
   var texto = Array.isArray(instrucoes) ? instrucoes.join(' ') : (instrucoes || '');
   texto = texto.toUpperCase();
+  instrucoes = Array.isArray(instrucoes) ? instrucoes : [instrucoes||'']; // garante array
 
-  // ── Temperatura de lavagem ────────────────────────────
-  if (/NÃO\s*LAVAR|NAO\s*LAVAR/.test(texto)) {
-    iconesEncontrados.push('nao-lavar');
-  } else if (/95/.test(texto)) {
-    iconesEncontrados.push('lavar-95');
-  } else if (/60/.test(texto)) {
-    iconesEncontrados.push('lavar-60');
-  } else if (/40/.test(texto)) {
-    iconesEncontrados.push('lavar-40');
-  } else if (/30/.test(texto)) {
-    iconesEncontrados.push('lavar-30');
-  } else if (/MÃO|MAO|HAND/.test(texto)) {
-    iconesEncontrados.push('lavar-mao');
-  }
+  // Processa cada instrucao individualmente para nao perder icones
+  instrucoes.forEach(function(instr) {
+    var tu = (instr||'').toUpperCase();
 
-  // ── Alvejamento ───────────────────────────────────────
-  if (/NÃO\s*ALVEJAR|NAO\s*ALVEJAR|☒|⊠|[Xx]\s*(?:TRIÂNGULO|TRIANGLE|△|▲)/.test(texto)) {
-    iconesEncontrados.push('nao-alvejar');
-  } else if (/SEM\s*CLORO|WITHOUT\s*CHLORINE/.test(texto)) {
-    iconesEncontrados.push('alvejar-sem-cloro');
-  }
+    // Lavagem
+    if (/N[AÃ]O\s*LAVAR/.test(tu)) {
+      iconesEncontrados.push('nao-lavar');
+    } else {
+      if (/95/.test(tu)) iconesEncontrados.push('lavar-95');
+      else if (/60/.test(tu)) iconesEncontrados.push('lavar-60');
+      else if (/40/.test(tu)) iconesEncontrados.push('lavar-40');
+      else if (/30/.test(tu)) iconesEncontrados.push('lavar-30');
+      if (/M[AÃ]O|HAND/.test(tu)) iconesEncontrados.push('lavar-mao');
+    }
 
-  // ── Secagem ───────────────────────────────────────────
-  if (/NÃO\s*SECAR|NAO\s*SECAR/.test(texto)) {
-    iconesEncontrados.push('nao-secar-secadora');
-  } else if (/SECADORA|DRYER/.test(texto)) {
-    iconesEncontrados.push('secar-secadora');
-  }
-  if (/SOMBRA|SHADE/.test(texto)) iconesEncontrados.push('secar-sombra');
-  if (/PLANO|FLAT/.test(texto)) iconesEncontrados.push('secar-plano');
+    // Alvejamento
+    if (/N[AÃ]O\s*ALVEJAR/.test(tu)) {
+      iconesEncontrados.push('nao-alvejar');
+    } else if (/SEM\s*CLORO|WITHOUT\s*CHLORINE/.test(tu)) {
+      iconesEncontrados.push('alvejar-sem-cloro');
+    } else if (/ALVEJAR|CLORO|BLEACH|CHLORINE/.test(tu)) {
+      iconesEncontrados.push('alvejar-cloro');
+    }
 
-  // ── Ferro ─────────────────────────────────────────────
-  if (/NÃO\s*(?:PASSAR|FERRO)|NAO\s*(?:PASSAR|FERRO)/.test(texto)) {
-    iconesEncontrados.push('nao-passar-ferro');
-  } else if (/200|ALTO/.test(texto) && /FERRO|IRON/.test(texto)) {
-    iconesEncontrados.push('ferro-alto');
-  } else if (/150|MÉDIO|MEDIO/.test(texto) && /FERRO|IRON/.test(texto)) {
-    iconesEncontrados.push('ferro-medio');
-  } else if (/110|BAIXO/.test(texto) && /FERRO|IRON/.test(texto)) {
-    iconesEncontrados.push('ferro-baixo');
-  }
+    // Secagem
+    if (/N[AÃ]O\s*SECAR/.test(tu)) {
+      iconesEncontrados.push('nao-secar-secadora');
+    } else if (/SECADORA|DRYER/.test(tu)) {
+      iconesEncontrados.push('secar-secadora');
+    }
+    if (/SOMBRA|SHADE/.test(tu)) iconesEncontrados.push('secar-sombra');
+    if (/PLANO|FLAT/.test(tu)) iconesEncontrados.push('secar-plano');
+    if (/\bLINHA\b|\bLINE\b/.test(tu)) iconesEncontrados.push('secar-linha');
 
-  // ── Limpeza a seco ────────────────────────────────────
-  // OCR retorna "P", "(P)", "F", "(F)", "W", "(W)" após símbolo círculo
-  if (/NÃO\s*LIMPEZA|NAO\s*LIMPEZA|X/.test(texto) && /SECO|DRY/.test(texto)) {
-    iconesEncontrados.push('nao-limpeza-seco');
-  } else if (/\(W\)|W/.test(texto)) {
-    iconesEncontrados.push('limpeza-seco-w');
-  } else if (/\(F\)|F/.test(texto)) {
-    iconesEncontrados.push('limpeza-seco-f');
-  } else if (/\(P\)|P/.test(texto)) {
-    iconesEncontrados.push('limpeza-seco-p');
-  }
+    // Ferro
+    if (/N[AÃ]O\s*(?:PASSAR|FERRO)/.test(tu)) {
+      iconesEncontrados.push('nao-passar-ferro');
+    } else if (/FERRO|IRON|PASSAR/.test(tu)) {
+      if (/200|ALTO/.test(tu)) iconesEncontrados.push('ferro-alto');
+      else if (/150|M[EÉ]DIO/.test(tu)) iconesEncontrados.push('ferro-medio');
+      else if (/110|BAIXO/.test(tu)) iconesEncontrados.push('ferro-baixo');
+      else iconesEncontrados.push('ferro-medio');
+    }
 
-  // Deduplica
+    // Limpeza a seco
+    if (/N[AÃ]O\s*LIMPEZA/.test(tu) && /SECO|DRY/.test(tu)) {
+      iconesEncontrados.push('nao-limpeza-seco');
+    } else if (/\(W\)|\bW\b/.test(tu) && /SECO|DRY|CLEAN/.test(tu)) {
+      iconesEncontrados.push('limpeza-seco-w');
+    } else if (/\(F\)|\bF\b/.test(tu) && /SECO|DRY|CLEAN/.test(tu)) {
+      iconesEncontrados.push('limpeza-seco-f');
+    } else if (/\(P\)|\bP\b/.test(tu) && /SECO|DRY|CLEAN/.test(tu)) {
+      iconesEncontrados.push('limpeza-seco-p');
+    }
+  });
+
+    // Deduplica
   return iconesEncontrados.filter(function(v, i, a) { return a.indexOf(v) === i; });
 }
 
@@ -665,21 +689,23 @@ function normEt(t) {
 function renderEtiqueta(info) {
   if (!info||!info.etiquetas||!info.etiquetas.length) return '';
   var e = info.etiquetas[0];
-  var h = '<div class="etiqueta-section"><div class="etiqueta-title">[tag] Etiqueta</div><div class="etiqueta-grid">';
+  var h = '<div class="etiqueta-section"><div class="etiqueta-title">🏷 Etiqueta</div><div class="etiqueta-grid">';
   if(e.referencia) h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Referência</div><div class="etiqueta-item-value">'+e.referencia+'</div></div>';
   if(e.largura)    h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Largura</div><div class="etiqueta-item-value">'+e.largura+'</div></div>';
   if(e.gramatura)  h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Gramatura</div><div class="etiqueta-item-value">'+e.gramatura+'</div></div>';
   if(e.origem)     h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Origem</div><div class="etiqueta-item-value">'+e.origem+'</div></div>';
   if(e.composicao) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Composição</div><div class="etiqueta-item-value">'+e.composicao+'</div></div>';
-  // instruções de lavagem são renderizadas como ícones separadamente
   if(e.outros&&e.outros.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Outras informações</div><div class="etiqueta-item-value">'+e.outros.join(' | ')+'</div></div>';
   h+='</div>';
-  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">[foto] Ver foto da etiqueta</a>';
-  h+='</div>';
-  // Adiciona ícones de lavagem
-  if(e.instrucoes&&e.instrucoes.length) h+=renderIconesLavagem(e.instrucoes);
-  // Também tenta extrair do texto completo se instrucoes vazio
-  else if(e.textoCompleto) h+=renderIconesLavagem([e.textoCompleto]);
+  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">📷 Ver foto da etiqueta</a>';
+  // Ícones de lavagem — junta TODAS as instruções de todos as etiquetas para não perder nenhuma
+  var todasInstrucoes = [];
+  info.etiquetas.forEach(function(et){
+    if(et.instrucoes&&et.instrucoes.length) todasInstrucoes=todasInstrucoes.concat(et.instrucoes);
+    if(et.textoCompleto) todasInstrucoes.push(et.textoCompleto);
+  });
+  h += renderIconesLavagem(todasInstrucoes);
+  h += '</div>';
   return h;
 }
 
@@ -827,22 +853,74 @@ function filtrarProdutos(){
   renderProdutos(!q?todosProdutos:todosProdutos.filter(function(p){return p.nome.toLowerCase().includes(q)||p.cores.some(function(c){return c.cor.toLowerCase().includes(q)||(c.processo&&c.processo.toLowerCase().includes(q));});}));
 }
 function renderProdutos(lista){
-  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">[busca]</div><p>Nenhum produto encontrado</p></div>';return;}
+  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>';return;}
   document.getElementById('lista-produtos').innerHTML=lista.map(function(p,idx){
     var total=p.cores.reduce(function(s,c){return s+c.qtd;},0);
     var etInfo=buscarEtiquetaProduto(p.nome);
     var temEt=etInfo&&etInfo.etiquetas&&etInfo.etiquetas.length>0;
-    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">[tag]</span>':'';
+    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">🏷</span>':'';
+    // Preço
+    var piKey=normPreco(p.nome);
+    var pi=tabelaPrecos[piKey]||null;
+    var precoBtn=pi?'<button class="preco-inline-btn" onclick="togglePrecoInline(event,'+idx+')">Ver preço</button>':'';
+    // Especificações (etiqueta) resumidas no header
+    var specsHtml='';
+    if(temEt&&etInfo.etiquetas[0]){
+      var e0=etInfo.etiquetas[0];
+      var parts=[];
+      if(e0.largura)parts.push(e0.largura);
+      if(e0.gramatura)parts.push(e0.gramatura);
+      if(e0.composicao)parts.push(e0.composicao);
+      if(parts.length)specsHtml='<div class="produto-specs">'+parts.join(' · ')+'</div>';
+    }
+    // Painel de preço oculto
+    var precoPanel='';
+    if(pi){
+      var labs=['Tab.1','Tab.2','Tab.3','Tab.4'];
+      var isPE=/P\.E/.test(pi.disponibilidade||'');
+      var badgeLabel=isPE?'Pronta Entrega':'Programação';
+      var badgeColor=isPE?'#27500a':'#0c447c';
+      var badgeBg=isPE?'#eaf3de':'#e6f1fb';
+      precoPanel='<div class="preco-inline-panel" id="preco-panel-'+idx+'">';
+      precoPanel+='<div class="preco-inline-faixas">';
+      pi.precos.forEach(function(pr,fi){
+        precoPanel+='<div class="preco-inline-faixa"><div class="preco-inline-label">'+labs[fi]+'</div><div class="preco-inline-valor">R$ '+pr.toFixed(2).replace('.',',')+'</div></div>';
+      });
+      precoPanel+='</div>';
+      precoPanel+='<div class="preco-inline-disp"><span style="background:'+badgeBg+';color:'+badgeColor+';font-weight:700;font-size:10px;padding:2px 8px;border-radius:10px;">'+badgeLabel+'</span>'+(pi.chegada?' · Chegada: '+pi.chegada:'')+'</div>';
+      precoPanel+='</div>';
+    }
     return '<div class="produto-card" id="prod-'+idx+'">'
       +'<div class="produto-header" onclick="toggleProduto('+idx+')">'
-      +'<div><div class="produto-nome">'+p.nome+etTag+'</div><div class="produto-total">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div></div>'
-      +'<span class="produto-arrow">▼</span></div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
+      +'<span class="produto-nome">'+p.nome+'</span>'+etTag+precoBtn+'</div>'
+      +specsHtml
+      +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div>'
+      +'</div>'
+      +'<span class="produto-arrow" style="flex-shrink:0">▼</span></div>'
+      +precoPanel
       +'<div class="cores-list">'
-      +p.cores.map(function(c){return '<div class="cor-item"><div><div class="cor-nome">'+c.cor+'</div>'+(c.processo?'<div class="cor-processo">'+c.processo+'</div>':'')+' </div><div class="cor-qtd">'+Math.round(c.qtd)+' m</div></div>';}).join('')
+      +p.cores.map(function(c){
+        return '<div class="cor-item"><div style="flex:1">'
+          +'<div class="cor-nome">'+c.cor+'</div>'
+          +(c.processo?'<div class="cor-processo">Lote: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">⚠ Sem processo</div>')
+          +'</div><div class="cor-qtd">'+Math.round(c.qtd)+' m</div></div>';
+      }).join('')
       +(temEt?renderEtiqueta(etInfo):'')
       +'</div></div>';
   }).join('');
 }
+
+function togglePrecoInline(evt,idx){
+  evt.stopPropagation();
+  var panel=document.getElementById('preco-panel-'+idx);
+  if(!panel)return;
+  var open=panel.classList.toggle('open');
+  var btn=evt.target;
+  btn.textContent=open?'Ocultar preço':'Ver preço';
+}
+
 function toggleProduto(idx){document.getElementById('prod-'+idx).classList.toggle('open');}
 
 // ── PREÇOS ─────────────────────────────────────────────
@@ -1006,10 +1084,58 @@ function normPreco(t){
 }
 
 function onTabelaCarregada(nome,qtd){
-  document.getElementById('upload-tabela-label').textContent='[ok] '+nome+' ('+qtd+' produtos)';
-  document.getElementById('upload-tabela-area').classList.add('done');
+  // Salva no localStorage
+  try {
+    localStorage.setItem(TABELA_STORAGE_KEY, JSON.stringify(tabelaPrecos));
+    localStorage.setItem(TABELA_META_KEY, JSON.stringify({nome:nome,qtd:qtd,data:new Date().toLocaleDateString('pt-BR')}));
+  } catch(e){ console.log('Erro ao salvar tabela:', e); }
+  renderTabelaSalvaCard(nome,qtd);
   document.getElementById('area-data-prog').style.display='block';
   document.getElementById('area-cruzar').style.display='block';
+  document.getElementById('resultado-precos').innerHTML='';
+}
+
+function renderTabelaSalvaCard(nome,qtd){
+  var area=document.getElementById('area-upload-tabela');
+  area.innerHTML='<div class="tabela-salva-card">'
+    +'<div><div class="tabela-salva-nome">'+nome+'</div><div class="tabela-salva-qtd">'+qtd+' produtos carregados</div></div>'
+    +'<button class="tabela-salva-del" onclick="excluirTabelaSalva()" title="Excluir tabela">🗑</button>'
+    +'</div>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;margin-top:4px">'
+    +'<input type="file" accept=".pdf,.xlsx,.xls" onchange="carregarTabelaUpload(this)" style="display:none">'
+    +'📁 Substituir tabela</label>';
+}
+
+function carregarTabelaSalva(){
+  try {
+    var raw=localStorage.getItem(TABELA_STORAGE_KEY);
+    var meta=localStorage.getItem(TABELA_META_KEY);
+    if(!raw||!meta) return;
+    tabelaPrecos=JSON.parse(raw);
+    var m=JSON.parse(meta);
+    var qtd=Object.keys(tabelaPrecos).length;
+    if(!qtd) return;
+    renderTabelaSalvaCard(m.nome+'  ·  salva em '+m.data, qtd);
+    document.getElementById('area-data-prog').style.display='block';
+    document.getElementById('area-cruzar').style.display='block';
+  } catch(e){ console.log('Erro ao carregar tabela salva:',e); }
+}
+
+function excluirTabelaSalva(){
+  if(!confirm('Excluir tabela de preços salva?')) return;
+  localStorage.removeItem(TABELA_STORAGE_KEY);
+  localStorage.removeItem(TABELA_META_KEY);
+  tabelaPrecos={};
+  // Restaura área de upload
+  document.getElementById('area-upload-tabela').innerHTML=
+    '<div class="upload-area" id="upload-tabela-area" onclick="document.getElementById('file-tabela').click()">'
+    +'<input type="file" id="file-tabela" accept=".pdf,.xlsx,.xls,.doc,.docx" onchange="carregarTabelaUpload(this)">'
+    +'<div class="upload-icon">📄</div>'
+    +'<div class="upload-title" id="upload-tabela-label">Selecionar tabela de preços</div>'
+    +'<div class="upload-sub">PDF, Excel ou Word</div>'
+    +'</div>';
+  document.getElementById('area-data-prog').style.display='none';
+  document.getElementById('area-cruzar').style.display='none';
   document.getElementById('resultado-precos').innerHTML='';
 }
 
