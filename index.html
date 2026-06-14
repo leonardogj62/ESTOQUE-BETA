@@ -1121,6 +1121,7 @@ function carregarTabelaSalva(){
   } catch(e){ console.log('Erro ao carregar tabela salva:',e); }
 }
 
+function abrirFilePicker(){var f=document.getElementById('file-tabela');if(f)f.click();}
 function excluirTabelaSalva(){
   if(!confirm('Excluir tabela de preços salva?')) return;
   localStorage.removeItem(TABELA_STORAGE_KEY);
@@ -1128,8 +1129,8 @@ function excluirTabelaSalva(){
   tabelaPrecos={};
   // Restaura área de upload
   document.getElementById('area-upload-tabela').innerHTML=
-    '<div class="upload-area" id="upload-tabela-area" onclick="document.getElementById('file-tabela').click()">'
-    +'<input type="file" id="file-tabela" accept=".pdf,.xlsx,.xls,.doc,.docx" onchange="carregarTabelaUpload(this)">'
+    '<div class="upload-area" id="upload-tabela-area" onclick="abrirFilePicker()">'
+    +'<input type="file" id="file-tabela" accept=".pdf,.xlsx,.xls,.doc,.docx" onchange="carregarTabelaUpload(this)" style="display:none">'
     +'<div class="upload-icon">📄</div>'
     +'<div class="upload-title" id="upload-tabela-label">Selecionar tabela de preços</div>'
     +'<div class="upload-sub">PDF, Excel ou Word</div>'
