@@ -236,13 +236,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div id="loading-busca" style="display:none" class="loading mt16"><span class="spinner"></span> Carregando estoque...</div>
 
-    <!-- Diagnóstico de etiquetas -->
-    <div id="diag-box" style="display:none;background:#f0efe8;border-radius:8px;padding:14px;margin-top:14px;font-size:12px;line-height:1.7;color:#1a1a1a;white-space:pre-wrap;font-family:monospace;word-break:break-all"></div>
-    <button onclick="mostrarDiagnostico()" style="margin-top:10px;width:100%;padding:10px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.1);background:#fff;font-size:13px;cursor:pointer;color:#666">🔍 Diagnóstico de etiquetas</button>
     <div id="area-busca-produto" style="display:none">
       <p class="section-label">Buscar produto</p>
       <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="input-busca" placeholder="Nome do produto, cor ou processo..." oninput="filtrarProdutos()"></div>
       <div id="lista-produtos"></div>
+    <!-- Diagnóstico de etiquetas (colapsável, no rodapé) -->
+    <div style="margin-top:20px;border-top:0.5px solid var(--border);padding-top:10px">
+      <button onclick="toggleDiagnostico()" style="width:100%;padding:8px;border-radius:8px;border:0.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--text3)">🔍 Diagnóstico de etiquetas</button>
+      <div id="diag-box" style="display:none;background:#f0efe8;border-radius:8px;padding:14px;margin-top:8px;font-size:11px;line-height:1.7;color:#1a1a1a;white-space:pre-wrap;font-family:monospace;word-break:break-all"></div>
+    </div>
     </div>
   </div>
 </div>
@@ -639,8 +641,9 @@ function buscarEtiquetaProduto(nome) {
 }
 
 // Diagnóstico visual — botão no app
-function mostrarDiagnostico() {
+function toggleDiagnostico() {
   var box = document.getElementById('diag-box');
+  if(box.style.display !== 'none') { box.style.display='none'; return; }
   box.style.display = 'block';
   var lines = [];
   var total = Object.keys(dadosEtiquetas).length;
