@@ -802,7 +802,10 @@ function renderComparacao(){
   h+='<button class="filter-btn" onclick="filtrarResultado(\'aumentou\',this)">🟢 Aumentaram ('+aum.length+')</button>';
   h+='<button class="filter-btn" onclick="filtrarResultado(\'novo\',this)">🔵 Novos ('+nov.length+')</button>';
   h+='<button class="filter-btn" onclick="filtrarResultado(\'voltou\',this)">🟣 Voltou ('+vol.length+')</button>';
-  h+='</div><div id="lista-resultado">'+renderItens(_todosResultados)+'</div></div>';
+  h+='</div>';
+  // Botão exportar
+  h+='<button onclick="exportarComparacao()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;border:0.5px solid #27500a;background:#eaf3de;color:#27500a;font-size:13px;font-weight:600;cursor:pointer;">📊 Exportar planilha da comparação</button>';
+  h+='<div id="lista-resultado" style="margin-top:12px">'+renderItens(_todosResultados)+'</div></div>';
   document.getElementById('resultado-comparacao').innerHTML=h;
 }
 function renderItens(lista){
@@ -811,16 +814,94 @@ function renderItens(lista){
   var cqs={esgotado:'red',reduziu:'amber',aumentou:'green',novo:'blue',voltou:'purple'};
   return lista.map(function(item){
     var cq=cqs[item.tipo];
+    var antStr = item.tipo==='esgotado' ? Math.round(item.qtdAnt)+' m' : Math.round(item.qtdAnt)+' m';
+    var atuStr = item.tipo==='esgotado' ? 'zerado' : Math.round(item.qtdAtu)+' m';
     return '<div class="result-item '+item.tipo+'"><div class="result-produto">'+item.produto+'<span class="badge '+item.tipo+'">'+labs[item.tipo]+'</span></div>'
       +'<div class="result-cor">'+item.cor+(item.processo?' · '+item.processo:'')+'</div>'
-      +'<div class="result-qtd">'+(item.tipo!=='novo'&&item.tipo!=='voltou'?'<span class="qtd-old">'+Math.round(item.qtdAnt)+' m</span><span class="qtd-arrow">-></span>':'')
-      +'<span class="qtd-new '+cq+'">'+(item.tipo==='esgotado'?'zerado':Math.round(item.qtdAtu)+' m')+'</span></div></div>';
+      +'<div class="result-qtd"><span class="qtd-old">'+antStr+'</span><span class="qtd-arrow">→</span><span class="qtd-new '+cq+'">'+atuStr+'</span></div></div>';
   }).join('');
 }
 function filtrarResultado(tipo,btn){
   document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
   document.getElementById('lista-resultado').innerHTML=renderItens(tipo==='todos'?_todosResultados:_todosResultados.filter(function(i){return i.tipo===tipo;}));
 }
+
+function exportarComparacao(){
+  if(!_todosResultados||!_todosResultados.length){
+    alert('Nenhuma comparação disponível. Compare os estoques primeiro.');
+    return;
+  }
+
+  // Monta os dados da planilha
+  var nomeAnt = arquivoAnterior ? arquivoAnterior.name : 'Anterior';
+  var nomeAtu = arquivoAtual    ? arquivoAtual.name    : 'Atual';
+
+  // Cabeçalho
+  var rows = [
+    ['COMPARAÇÃO DE ESTOQUE'],
+    ['Arquivo anterior:', nomeAnt],
+    ['Arquivo atual:',    nomeAtu],
+    ['Gerado em:', new Date().toLocaleString('pt-BR')],
+    [],
+    ['PRODUTO','COR','LOTE/PROCESSO','STATUS','QTD ANTERIOR (m)','QTD ATUAL (m)','DIFERENÇA (m)']
+  ];
+
+  var labsExport = {
+    esgotado: 'Esgotado',
+    reduziu:  'Reduziu',
+    aumentou: 'Aumentou',
+    novo:     'Novo',
+    voltou:   'Voltou ao estoque'
+  };
+
+  // Ordena: esgotado → reduziu → aumentou → novo → voltou
+  var ordem = {esgotado:0,reduziu:1,aumentou:2,novo:3,voltou:4};
+  var sorted = _todosResultados.slice().sort(function(a,b){
+    if(ordem[a.tipo]!==ordem[b.tipo]) return ordem[a.tipo]-ordem[b.tipo];
+    if(a.produto!==b.produto) return a.produto.localeCompare(b.produto);
+    return a.cor.localeCompare(b.cor);
+  });
+
+  sorted.forEach(function(item){
+    var qtdAnt = Math.round(item.qtdAnt);
+    var qtdAtu = item.tipo==='esgotado' ? 0 : Math.round(item.qtdAtu);
+    var diff   = qtdAtu - qtdAnt;
+    rows.push([
+      item.produto,
+      item.cor,
+      item.processo || '',
+      labsExport[item.tipo] || item.tipo,
+      qtdAnt,
+      qtdAtu,
+      diff > 0 ? '+'+diff : diff
+    ]);
+  });
+
+  // Cria workbook com SheetJS
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Larguras de coluna
+  ws['!cols'] = [
+    {wch:35}, // produto
+    {wch:22}, // cor
+    {wch:18}, // processo
+    {wch:18}, // status
+    {wch:16}, // qtd anterior
+    {wch:14}, // qtd atual
+    {wch:14}  // diferença
+  ];
+
+  // Congela as 6 primeiras linhas (cabeçalho)
+  ws['!freeze'] = {xSplit:0, ySplit:6};
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Comparação');
+
+  // Nome do arquivo de saída baseado nas datas dos arquivos
+  var hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'.');
+  XLSX.writeFile(wb, 'COMPARACAO-ESTOQUE-'+hoje+'.xlsx');
+}
+
 function selecionarTipo(chip){
   document.querySelectorAll('#chips-tipo .tipo-chip').forEach(function(c){c.classList.remove('selected');});chip.classList.add('selected');
   pastaAtiva=chip.dataset.pastaId;arquivoAtual=null;arquivoAnterior=null;dadosAnterior=null;dadosAtual=null;
