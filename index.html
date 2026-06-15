@@ -104,7 +104,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tipo-chip { padding: 8px 14px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--surface); font-size: 13px; cursor: pointer; }
 .tipo-chip.selected { background: var(--accent); color: white; border-color: var(--accent); }
 
-/* PREÃOS */
+/* PREÇOS */
 .upload-area { border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 20px 16px; text-align: center; cursor: pointer; background: var(--surface); position: relative; }
 .upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .upload-area.done { background: #eaf3de; border-color: #c0dd97; border-style: solid; }
@@ -140,7 +140,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .preco-row-value { font-weight: 500; }
 .badge.pe   { background: #eaf3de; color: #27500a; }
 .badge.prog { background: #e6f1fb; color: #0c447c; }
-/* PreÃ§os no card de produto */
+/* Preços no card de produto */
 .alerta-panel { background:#fff8e6; border:1px solid #f0c040; border-radius:10px; margin-top:14px; overflow:hidden; }
 .alerta-panel-header { display:flex; align-items:center; gap:8px; padding:12px 14px; cursor:pointer; user-select:none; }
 .alerta-panel-icon { font-size:18px; }
@@ -170,7 +170,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tabela-salva-nome { font-size:13px; font-weight:600; color:#27500a; flex:1; }
 .tabela-salva-qtd { font-size:11px; color:#4a7a1a; }
 .tabela-salva-del { background:none; border:none; font-size:18px; cursor:pointer; color:#a32d2d; padding:0 4px; }
-/* Processo cor â destaque */
+/* Processo cor — destaque */
 .cor-processo { font-size:11px; color:#185fa5; font-weight:600; margin-top:2px; }
 /* Etiqueta dentro do header do produto */
 .produto-specs { font-size:11px; color:var(--text3); margin-top:3px; line-height:1.5; }
@@ -196,38 +196,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <div class="header">
   <div class="header-top">
-    <div class="logo">ð¦</div>
+    <div class="logo">📦</div>
     <div><h1>Estoque Beta</h1><p id="header-status">Conecte ao Google Drive</p></div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="trocarTela('comparar',this)">Comparar</button>
     <button class="tab" onclick="trocarTela('buscar',this)">Buscar</button>
-    <button class="tab" onclick="trocarTela('precos',this)">PreÃ§os</button>
+    <button class="tab" onclick="trocarTela('precos',this)">Preços</button>
   </div>
 </div>
 
 <!-- COMPARAR -->
 <div id="tela-comparar" class="screen active">
   <div id="bloco-auth-comparar">
-    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">ð</div><div class="auth-title">Conectar ao Google Drive</div><div class="auth-sub">Autorize uma vez e o app buscarÃ¡ os estoques automaticamente.</div></div>
+    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🔗</div><div class="auth-title">Conectar ao Google Drive</div><div class="auth-sub">Autorize uma vez e o app buscará os estoques automaticamente.</div></div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
-    <button class="btn btn-secondary" onclick="forcarReconectar()" style="margin-top:8px">ð Reconectar (limpar sessÃ£o)</button>
+    <button class="btn btn-secondary" onclick="forcarReconectar()" style="margin-top:8px">🔄 Reconectar (limpar sessão)</button>
   </div>
   <div id="bloco-comparar" style="display:none">
     <p class="section-label">Tipo de estoque</p>
     <div class="tipo-chips" id="chips-tipo">
       <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipo(this)">Masc. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipo(this)">Masc. ProgramaÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipo(this)">Masc. Programação</div>
       <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" onclick="selecionarTipo(this)">Fem. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipo(this)">Fem. ProgramaÃ§Ã£o</div>
-      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipo(this)">Fem. PromoÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipo(this)">Fem. Programação</div>
+      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipo(this)">Fem. Promoção</div>
     </div>
     <div id="area-arquivos" style="display:none">
       <p class="section-label">Arquivos encontrados</p>
       <div id="info-arquivos"></div>
       <div class="mt16">
         <button class="btn btn-primary" id="btn-comparar" onclick="compararEstoques()">Comparar automaticamente</button>
-        <button class="btn btn-secondary" onclick="buscarArquivos()">ð Atualizar</button>
+        <button class="btn btn-secondary" onclick="buscarArquivos()">🔄 Atualizar</button>
       </div>
     </div>
     <div id="loading-arquivos" style="display:none" class="loading"><span class="spinner"></span> Buscando arquivos no Drive...</div>
@@ -238,67 +238,67 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <!-- BUSCAR -->
 <div id="tela-buscar" class="screen">
   <div id="bloco-auth-buscar">
-    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">ð</div><div class="auth-title">Conectar ao Google Drive</div><div class="auth-sub">Autorize para buscar produtos do estoque mais recente.</div></div>
+    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🔗</div><div class="auth-title">Conectar ao Google Drive</div><div class="auth-sub">Autorize para buscar produtos do estoque mais recente.</div></div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
   </div>
   <div id="bloco-buscar" style="display:none">
     <p class="section-label">Tipo de estoque</p>
     <div class="tipo-chips" id="chips-busca">
       <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipoBusca(this)">Masc. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoBusca(this)">Masc. ProgramaÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoBusca(this)">Masc. Programação</div>
       <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" onclick="selecionarTipoBusca(this)">Fem. Pronta Entrega</div>
-      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. ProgramaÃ§Ã£o</div>
-      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoBusca(this)">Fem. PromoÃ§Ã£o</div>
+      <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. Programação</div>
+      <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoBusca(this)">Fem. Promoção</div>
     </div>
     <div id="alerta-busca"></div>
     <div id="loading-busca" style="display:none" class="loading mt16"><span class="spinner"></span> Carregando estoque...</div>
 
     <div id="area-busca-produto" style="display:none">
       <p class="section-label">Buscar produto</p>
-      <div class="search-wrap"><span class="search-icon">ð</span><input type="text" id="input-busca" placeholder="Nome do produto, cor ou processo..." oninput="filtrarProdutos()"></div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="input-busca" placeholder="Nome do produto, cor ou processo..." oninput="filtrarProdutos()"></div>
       <div id="lista-produtos"></div>
-    <!-- DiagnÃ³stico de etiquetas (colapsÃ¡vel, no rodapÃ©) -->
+    <!-- Diagnóstico de etiquetas (colapsável, no rodapé) -->
     <div style="margin-top:20px;border-top:0.5px solid var(--border);padding-top:10px">
-      <button onclick="toggleDiagnostico()" style="width:100%;padding:8px;border-radius:8px;border:0.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--text3)">ð DiagnÃ³stico de etiquetas</button>
+      <button onclick="toggleDiagnostico()" style="width:100%;padding:8px;border-radius:8px;border:0.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--text3)">🔍 Diagnóstico de etiquetas</button>
       <div id="diag-box" style="display:none;background:#f0efe8;border-radius:8px;padding:14px;margin-top:8px;font-size:11px;line-height:1.7;color:#1a1a1a;white-space:pre-wrap;font-family:monospace;word-break:break-all"></div>
     </div>
     </div>
   </div>
 </div>
 
-<!-- PREÃOS -->
+<!-- PREÇOS -->
 <div id="tela-precos" class="screen">
   <div id="bloco-auth-precos">
-    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">ð·</div><div class="auth-title">Tabela de PreÃ§os</div><div class="auth-sub">Conecte ao Google Drive para usar esta funÃ§Ã£o.</div></div>
+    <div class="auth-card" style="margin-top:16px"><div class="auth-icon">🏷</div><div class="auth-title">Tabela de Preços</div><div class="auth-sub">Conecte ao Google Drive para usar esta função.</div></div>
     <button class="btn btn-primary" onclick="autenticar()">Conectar com Google</button>
   </div>
   <div id="bloco-precos" style="display:none">
-    <p class="section-label">Fonte da tabela de preÃ§os</p>
+    <p class="section-label">Fonte da tabela de preços</p>
     <div class="fonte-btns">
-      <div class="fonte-btn active" id="fonte-upload" onclick="selecionarFonte('upload')">ð Upload</div>
-      <div class="fonte-btn" id="fonte-email" onclick="selecionarFonte('email')">ð§ Buscar no email</div>
+      <div class="fonte-btn active" id="fonte-upload" onclick="selecionarFonte('upload')">📁 Upload</div>
+      <div class="fonte-btn" id="fonte-email" onclick="selecionarFonte('email')">📧 Buscar no email</div>
     </div>
     <div id="area-upload-tabela">
       <div class="upload-area" id="upload-tabela-area" onclick="document.getElementById('file-tabela').click()">
         <input type="file" id="file-tabela" accept=".pdf,.xlsx,.xls,.doc,.docx" onchange="carregarTabelaUpload(this)">
-        <div class="upload-icon">ð</div>
-        <div class="upload-title" id="upload-tabela-label">Selecionar tabela de preÃ§os</div>
+        <div class="upload-icon">📄</div>
+        <div class="upload-title" id="upload-tabela-label">Selecionar tabela de preços</div>
         <div class="upload-sub">PDF, Excel ou Word</div>
       </div>
     </div>
     <div id="area-email-tabela" style="display:none">
-      <div class="info-box">ð§ Busca a tabela de preÃ§os mais recente no email do Cleber.</div>
+      <div class="info-box">📧 Busca a tabela de preços mais recente no email do Cleber.</div>
       <button class="btn btn-primary" onclick="buscarTabelaEmail()">Buscar no email agora</button>
     </div>
     <div id="area-data-prog" style="display:none">
-      <p class="section-label">Data de programaÃ§Ã£o (fallback)</p>
-      <div class="info-box">â¹ Usado quando a data nÃ£o for identificada automaticamente na tabela.</div>
+      <p class="section-label">Data de programação (fallback)</p>
+      <div class="info-box">ℹ Usado quando a data não for identificada automaticamente na tabela.</div>
       <div class="data-prog-box">
-        <div class="data-prog-title">Quinzena / MÃªs / Ano</div>
+        <div class="data-prog-title">Quinzena / Mês / Ano</div>
         <div class="data-prog-selects">
-          <select id="sel-quinzena"><option value="1">1Âª Quinzena</option><option value="2">2Âª Quinzena</option></select>
+          <select id="sel-quinzena"><option value="1">1ª Quinzena</option><option value="2">2ª Quinzena</option></select>
           <select id="sel-mes">
-            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">MarÃ§o</option>
+            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
             <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
             <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
             <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
@@ -311,12 +311,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <p class="section-label">Cruzar com estoque</p>
       <div class="tipo-chips" id="chips-precos">
         <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipoPrecos(this)">Masc. Pronta Entrega</div>
-        <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoPrecos(this)">Masc. ProgramaÃ§Ã£o</div>
+        <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoPrecos(this)">Masc. Programação</div>
         <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" onclick="selecionarTipoPrecos(this)">Fem. Pronta Entrega</div>
-        <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoPrecos(this)">Fem. ProgramaÃ§Ã£o</div>
-        <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoPrecos(this)">Fem. PromoÃ§Ã£o</div>
+        <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoPrecos(this)">Fem. Programação</div>
+        <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoPrecos(this)">Fem. Promoção</div>
       </div>
-      <div class="mt16"><button class="btn btn-primary" onclick="cruzarPrecosEstoque()">Ver preÃ§os do estoque</button></div>
+      <div class="mt16"><button class="btn btn-primary" onclick="cruzarPrecosEstoque()">Ver preços do estoque</button></div>
     </div>
     <div id="loading-precos" style="display:none" class="loading mt16"><span class="spinner"></span> Carregando...</div>
     <div id="resultado-precos"></div>
@@ -340,12 +340,12 @@ var fonteSelecionada = 'upload';
 var TABELA_STORAGE_KEY = 'beta_tabela_precos_v1';
 var TABELA_META_KEY    = 'beta_tabela_meta_v1';
 
-// ForÃ§a reconexÃ£o limpando tudo
+// Força reconexão limpando tudo
 function forcarReconectar() {
   token = null;
   localStorage.clear();
   sessionStorage.clear();
-  // Recarrega a pÃ¡gina limpa
+  // Recarrega a página limpa
   window.location.href = window.location.origin + window.location.pathname;
 }
 
@@ -357,7 +357,7 @@ function forcarReconectar() {
   document.getElementById('sel-mes').value = new Date().getMonth()+1;
 })();
 
-// ââ AUTH âââââââââââââââââââââââââââââââââââââââââââââââ
+// ── AUTH ───────────────────────────────────────────────
 function autenticar() {
   token = null;
   localStorage.removeItem('drive_token');
@@ -371,7 +371,7 @@ function autenticar() {
     + '&scope=' + encodeURIComponent(SCOPES)
     + '&prompt=consent';
 
-  // Redirect direto â funciona em todos os browsers incluindo Safari/iOS
+  // Redirect direto — funciona em todos os browsers incluindo Safari/iOS
   window.location.assign(url);
 }
 function verificarToken() {
@@ -397,7 +397,7 @@ function verificarToken() {
     } catch(e) { console.log('Erro ao parsear hash OAuth:', e); }
   }
 
-  // CASO 2: token salvo de sessÃ£o anterior
+  // CASO 2: token salvo de sessão anterior
   var saved = localStorage.getItem('drive_token');
   if (saved) {
     token = saved;
@@ -405,7 +405,7 @@ function verificarToken() {
     return;
   }
 
-  // CASO 3: sem token â mostra tela de login
+  // CASO 3: sem token — mostra tela de login
   mostrarBotoesAuth();
 }
 function verificarTokenValido() {
@@ -414,7 +414,7 @@ function verificarTokenValido() {
     if(r.ok) {
       onAutenticado();
     } else {
-      // Token expirado â limpa e mostra botÃ£o de conectar
+      // Token expirado — limpa e mostra botão de conectar
       token=null;
       localStorage.removeItem('drive_token');
       mostrarBotoesAuth();
@@ -445,60 +445,60 @@ function onAutenticado() {
   carregarTabelaSalva();
 }
 
-// ââ ETIQUETAS ââââââââââââââââââââââââââââââââââââââââââ
-// ââ ÃCONES DE LAVAGEM ââââââââââââââââââââââââââââââââââââââ
-// Mapeia tokens extraÃ­dos pelo OCR para SVGs de lavagem
+// ── ETIQUETAS ──────────────────────────────────────────
+// ── ÍCONES DE LAVAGEM ──────────────────────────────────────
+// Mapeia tokens extraídos pelo OCR para SVGs de lavagem
 
 var ICONES_LAVAGEM = {
-  // ââ LAVAGEM ââââââââââââââââââââââââââââââââââââââââââââ
+  // ── LAVAGEM ────────────────────────────────────────────
   'lavar-30': {
-    label: 'Lavar 30Â°C',
+    label: 'Lavar 30°C',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#378ADD" font-weight="700" font-family="sans-serif">30</text></svg>'
   },
   'lavar-40': {
-    label: 'Lavar 40Â°C',
+    label: 'Lavar 40°C',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#378ADD" font-weight="700" font-family="sans-serif">40</text></svg>'
   },
   'lavar-60': {
-    label: 'Lavar 60Â°C',
+    label: 'Lavar 60°C',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#EF9F27" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#EF9F27" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#EF9F27" font-weight="700" font-family="sans-serif">60</text></svg>'
   },
   'lavar-95': {
-    label: 'Lavar 95Â°C',
+    label: 'Lavar 95°C',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#E24B4A" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#E24B4A" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="9" fill="#E24B4A" font-weight="700" font-family="sans-serif">95</text></svg>'
   },
   'lavar-mao': {
-    label: 'Lavar Ã  mÃ£o',
-    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="7" fill="#378ADD" font-weight="700" font-family="sans-serif">MÃO</text></svg>'
+    label: 'Lavar à mão',
+    svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#378ADD" stroke-width="1.8" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#378ADD" stroke-width="1.5" fill="none"/><text x="18" y="22" text-anchor="middle" font-size="7" fill="#378ADD" font-weight="700" font-family="sans-serif">MÃO</text></svg>'
   },
   'nao-lavar': {
-    label: 'NÃ£o lavar',
+    label: 'Não lavar',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 26 Q18 16 30 26" stroke="#E24B4A" stroke-width="1.5" fill="none"/><rect x="6" y="11" width="24" height="15" rx="3" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="7" x2="31" y2="33" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="7" x2="5" y2="33" stroke="#E24B4A" stroke-width="2"/></svg>'
   },
-  // ââ ALVEJAMENTO ââââââââââââââââââââââââââââââââââââââââ
+  // ── ALVEJAMENTO ────────────────────────────────────────
   'alvejar-cloro': {
     label: 'Alvejar com cloro',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#639922" stroke-width="1.5" fill="none"/></svg>'
   },
   'alvejar-sem-cloro': {
-    label: 'SÃ³ sem cloro',
+    label: 'Só sem cloro',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#639922" stroke-width="1.5" fill="none"/><line x1="8" y1="22" x2="20" y2="26" stroke="#639922" stroke-width="1.5"/></svg>'
   },
   'nao-alvejar': {
-    label: 'NÃ£o alvejar',
+    label: 'Não alvejar',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,5 33,29 3,29" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="7" x2="31" y2="33" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="7" x2="5" y2="33" stroke="#E24B4A" stroke-width="2"/></svg>'
   },
-  // ââ SECAGEM ââââââââââââââââââââââââââââââââââââââââââââ
+  // ── SECAGEM ────────────────────────────────────────────
   'secar-secadora': {
     label: 'Secar secadora',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#BA7517" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="7" stroke="#BA7517" stroke-width="1.5" fill="none"/></svg>'
   },
   'nao-secar-secadora': {
-    label: 'NÃ£o secar secadora',
+    label: 'Não secar secadora',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#E24B4A" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="7" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
   },
   'secar-sombra': {
-    label: 'Secar Ã  sombra',
+    label: 'Secar à sombra',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="24" height="16" rx="2" stroke="#BA7517" stroke-width="1.5" fill="none"/><line x1="11" y1="18" x2="25" y2="18" stroke="#BA7517" stroke-width="1.5"/></svg>'
   },
   'secar-linha': {
@@ -509,24 +509,24 @@ var ICONES_LAVAGEM = {
     label: 'Secar plano',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="24" height="16" rx="2" stroke="#BA7517" stroke-width="1.5" fill="none"/><line x1="11" y1="15" x2="25" y2="15" stroke="#BA7517" stroke-width="1"/><line x1="11" y1="21" x2="25" y2="21" stroke="#BA7517" stroke-width="1"/></svg>'
   },
-  // ââ FERRO ââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── FERRO ──────────────────────────────────────────────
   'ferro-baixo': {
-    label: 'Ferro baixo (110Â°C)',
+    label: 'Ferro baixo (110°C)',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="14" cy="19" r="1.5" fill="#534AB7"/></svg>'
   },
   'ferro-medio': {
-    label: 'Ferro mÃ©dio (150Â°C)',
+    label: 'Ferro médio (150°C)',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="13" cy="18" r="1.5" fill="#534AB7"/><circle cx="19" cy="18" r="1.5" fill="#534AB7"/></svg>'
   },
   'ferro-alto': {
-    label: 'Ferro alto (200Â°C)',
+    label: 'Ferro alto (200°C)',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#534AB7" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#534AB7" stroke-width="1.5"/><circle cx="12" cy="18" r="1.5" fill="#534AB7"/><circle cx="18" cy="18" r="1.5" fill="#534AB7"/><circle cx="24" cy="18" r="1.5" fill="#534AB7"/></svg>'
   },
   'nao-passar-ferro': {
-    label: 'NÃ£o passar ferro',
+    label: 'Não passar ferro',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 23 L7 17 Q7 12 13 12 L29 12 L31 17 L31 23 Z" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="7" y1="23" x2="31" y2="23" stroke="#E24B4A" stroke-width="1.5"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
   },
-  // ââ LIMPEZA A SECO âââââââââââââââââââââââââââââââââââââ
+  // ── LIMPEZA A SECO ─────────────────────────────────────
   'limpeza-seco-p': {
     label: 'Limpeza seco (P)',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">P</text></svg>'
@@ -536,16 +536,16 @@ var ICONES_LAVAGEM = {
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">F</text></svg>'
   },
   'limpeza-seco-w': {
-    label: 'Limpeza Ãºmida (W)',
+    label: 'Limpeza úmida (W)',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#1D9E75" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="13" fill="#1D9E75" font-weight="700" font-family="sans-serif">W</text></svg>'
   },
   'nao-limpeza-seco': {
-    label: 'NÃ£o limpar a seco',
+    label: 'Não limpar a seco',
     svg: '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="12" stroke="#E24B4A" stroke-width="1.5" fill="none"/><line x1="5" y1="5" x2="31" y2="31" stroke="#E24B4A" stroke-width="2"/><line x1="31" y1="5" x2="5" y2="31" stroke="#E24B4A" stroke-width="2"/></svg>'
   }
 };
 
-// Mapeia texto bruto do OCR para chaves de Ã­cones
+// Mapeia texto bruto do OCR para chaves de ícones
 function mapearIconesLavagem(instrucoes) {
   var iconesEncontrados = [];
   var texto = Array.isArray(instrucoes) ? instrucoes.join(' ') : (instrucoes || '');
@@ -557,18 +557,18 @@ function mapearIconesLavagem(instrucoes) {
     var tu = (instr||'').toUpperCase();
 
     // Lavagem
-    if (/N[AÃ]O\s*LAVAR/.test(tu)) {
+    if (/N[AÃ]O\s*LAVAR/.test(tu)) {
       iconesEncontrados.push('nao-lavar');
     } else {
       if (/95/.test(tu)) iconesEncontrados.push('lavar-95');
       else if (/60/.test(tu)) iconesEncontrados.push('lavar-60');
       else if (/40/.test(tu)) iconesEncontrados.push('lavar-40');
       else if (/30/.test(tu)) iconesEncontrados.push('lavar-30');
-      if (/M[AÃ]O|HAND/.test(tu)) iconesEncontrados.push('lavar-mao');
+      if (/M[AÃ]O|HAND/.test(tu)) iconesEncontrados.push('lavar-mao');
     }
 
     // Alvejamento
-    if (/N[AÃ]O\s*ALVEJAR/.test(tu)) {
+    if (/N[AÃ]O\s*ALVEJAR/.test(tu)) {
       iconesEncontrados.push('nao-alvejar');
     } else if (/SEM\s*CLORO|WITHOUT\s*CHLORINE/.test(tu)) {
       iconesEncontrados.push('alvejar-sem-cloro');
@@ -577,7 +577,7 @@ function mapearIconesLavagem(instrucoes) {
     }
 
     // Secagem
-    if (/N[AÃ]O\s*SECAR/.test(tu)) {
+    if (/N[AÃ]O\s*SECAR/.test(tu)) {
       iconesEncontrados.push('nao-secar-secadora');
     } else if (/SECADORA|DRYER/.test(tu)) {
       iconesEncontrados.push('secar-secadora');
@@ -587,17 +587,17 @@ function mapearIconesLavagem(instrucoes) {
     if (/\bLINHA\b|\bLINE\b/.test(tu)) iconesEncontrados.push('secar-linha');
 
     // Ferro
-    if (/N[AÃ]O\s*(?:PASSAR|FERRO)/.test(tu)) {
+    if (/N[AÃ]O\s*(?:PASSAR|FERRO)/.test(tu)) {
       iconesEncontrados.push('nao-passar-ferro');
     } else if (/FERRO|IRON|PASSAR/.test(tu)) {
       if (/200|ALTO/.test(tu)) iconesEncontrados.push('ferro-alto');
-      else if (/150|M[EÃ]DIO/.test(tu)) iconesEncontrados.push('ferro-medio');
+      else if (/150|M[EÉ]DIO/.test(tu)) iconesEncontrados.push('ferro-medio');
       else if (/110|BAIXO/.test(tu)) iconesEncontrados.push('ferro-baixo');
       else iconesEncontrados.push('ferro-medio');
     }
 
     // Limpeza a seco
-    if (/N[AÃ]O\s*LIMPEZA/.test(tu) && /SECO|DRY/.test(tu)) {
+    if (/N[AÃ]O\s*LIMPEZA/.test(tu) && /SECO|DRY/.test(tu)) {
       iconesEncontrados.push('nao-limpeza-seco');
     } else if (/\(W\)|\bW\b/.test(tu) && /SECO|DRY|CLEAN/.test(tu)) {
       iconesEncontrados.push('limpeza-seco-w');
@@ -617,7 +617,7 @@ function renderIconesLavagem(instrucoes) {
   if (!icones.length) return '';
 
   var h = '<div style="border-top:0.5px solid var(--border);padding:10px 14px;background:#fafaf7">';
-  h += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">InstruÃ§Ãµes de lavagem</div>';
+  h += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Instruções de lavagem</div>';
   h += '<div class="lavagem-icons">';
   icones.forEach(function(chave) {
     var ic = ICONES_LAVAGEM[chave];
@@ -635,11 +635,11 @@ function carregarEtiquetas() {
     return r.json();
   })
   .then(function(d){
-    if(!d) { console.log('Etiquetas: JSON vazio ou invÃ¡lido'); return; }
+    if(!d) { console.log('Etiquetas: JSON vazio ou inválido'); return; }
     dadosEtiquetas = d;
     var total = Object.keys(d).length;
     console.log('Etiquetas carregadas: '+total+' produtos');
-    // Re-renderiza lista de produtos se jÃ¡ estiver carregada
+    // Re-renderiza lista de produtos se já estiver carregada
     if(todosProdutos.length > 0) renderProdutos(todosProdutos);
   })
   .catch(function(e){ console.log('Etiquetas: erro ao carregar - '+e); });
@@ -649,7 +649,7 @@ function buscarEtiquetaProduto(nome) {
   var chave = normEt(nome);
   // Busca exata
   if (dadosEtiquetas[chave]) return dadosEtiquetas[chave];
-  // Busca parcial â nome do estoque contÃ©m parte do nome da etiqueta ou vice-versa
+  // Busca parcial — nome do estoque contém parte do nome da etiqueta ou vice-versa
   var ks = Object.keys(dadosEtiquetas);
   for (var i=0;i<ks.length;i++) {
     if(ks[i].includes(chave) || chave.includes(ks[i])) return dadosEtiquetas[ks[i]];
@@ -657,7 +657,7 @@ function buscarEtiquetaProduto(nome) {
   return null;
 }
 
-// DiagnÃ³stico visual â botÃ£o no app
+// Diagnóstico visual — botão no app
 function toggleDiagnostico() {
   var box = document.getElementById('diag-box');
   if(box.style.display !== 'none') { box.style.display='none'; return; }
@@ -676,7 +676,7 @@ function toggleDiagnostico() {
     lines.push('Nomes no estoque (primeiros 5):');
     todosProdutos.slice(0,5).forEach(function(p){
       var et = buscarEtiquetaProduto(p.nome);
-      lines.push('  - ' + p.nome + (et ? ' [ok]' : ' â'));
+      lines.push('  - ' + p.nome + (et ? ' [ok]' : ' ❌'));
     });
   } else {
     lines.push('');
@@ -687,7 +687,7 @@ function toggleDiagnostico() {
   box.textContent = lines.join('\n');
 }
 
-// DiagnÃ³stico â chame no console do browser: diagnosticoEtiquetas()
+// Diagnóstico — chame no console do browser: diagnosticoEtiquetas()
 function diagnosticoEtiquetas() {
   var total = Object.keys(dadosEtiquetas).length;
   console.log('=== DIAGNOSTICO ETIQUETAS ===');
@@ -709,16 +709,16 @@ function normEt(t) {
 function renderEtiqueta(info) {
   if (!info||!info.etiquetas||!info.etiquetas.length) return '';
   var e = info.etiquetas[0];
-  var h = '<div class="etiqueta-section"><div class="etiqueta-title">ð· Etiqueta</div><div class="etiqueta-grid">';
-  if(e.referencia) h+='<div class="etiqueta-item"><div class="etiqueta-item-label">ReferÃªncia</div><div class="etiqueta-item-value">'+e.referencia+'</div></div>';
+  var h = '<div class="etiqueta-section"><div class="etiqueta-title">🏷 Etiqueta</div><div class="etiqueta-grid">';
+  if(e.referencia) h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Referência</div><div class="etiqueta-item-value">'+e.referencia+'</div></div>';
   if(e.largura)    h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Largura</div><div class="etiqueta-item-value">'+e.largura+'</div></div>';
   if(e.gramatura)  h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Gramatura</div><div class="etiqueta-item-value">'+e.gramatura+'</div></div>';
   if(e.origem)     h+='<div class="etiqueta-item"><div class="etiqueta-item-label">Origem</div><div class="etiqueta-item-value">'+e.origem+'</div></div>';
-  if(e.composicao) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">ComposiÃ§Ã£o</div><div class="etiqueta-item-value">'+e.composicao+'</div></div>';
-  if(e.outros&&e.outros.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Outras informaÃ§Ãµes</div><div class="etiqueta-item-value">'+e.outros.join(' | ')+'</div></div>';
+  if(e.composicao) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Composição</div><div class="etiqueta-item-value">'+e.composicao+'</div></div>';
+  if(e.outros&&e.outros.length) h+='<div class="etiqueta-item full"><div class="etiqueta-item-label">Outras informações</div><div class="etiqueta-item-value">'+e.outros.join(' | ')+'</div></div>';
   h+='</div>';
-  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">ð· Ver foto da etiqueta</a>';
-  // Ãcones de lavagem â junta TODAS as instruÃ§Ãµes de todos as etiquetas para nÃ£o perder nenhuma
+  if(e.arquivoDestinoId) h+='<a class="etiqueta-foto-btn" href="https://drive.google.com/file/d/'+e.arquivoDestinoId+'/view" target="_blank">📷 Ver foto da etiqueta</a>';
+  // Ícones de lavagem — junta TODAS as instruções de todos as etiquetas para não perder nenhuma
   var todasInstrucoes = [];
   info.etiquetas.forEach(function(et){
     if(et.instrucoes&&et.instrucoes.length) todasInstrucoes=todasInstrucoes.concat(et.instrucoes);
@@ -729,7 +729,7 @@ function renderEtiqueta(info) {
   return h;
 }
 
-// ââ COMPARAR âââââââââââââââââââââââââââââââââââââââââââ
+// ── COMPARAR ───────────────────────────────────────────
 function buscarArquivos() {
   document.getElementById('area-arquivos').style.display='none';
   document.getElementById('loading-arquivos').style.display='block';
@@ -740,7 +740,7 @@ function buscarArquivos() {
   .then(function(data){
     document.getElementById('loading-arquivos').style.display='none';
     var files=(data.files||[]).sort(function(a,b){return extrairDataDoNome(b.name)-extrairDataDoNome(a.name);});
-    if(files.length<2){document.getElementById('area-arquivos').style.display='block';document.getElementById('info-arquivos').innerHTML='<div class="empty-state"><div class="empty-icon">[pasta]</div><p>SÃ£o necessÃ¡rios pelo menos 2 arquivos para comparar.</p></div>';document.getElementById('btn-comparar').disabled=true;return;}
+    if(files.length<2){document.getElementById('area-arquivos').style.display='block';document.getElementById('info-arquivos').innerHTML='<div class="empty-state"><div class="empty-icon">[pasta]</div><p>São necessários pelo menos 2 arquivos para comparar.</p></div>';document.getElementById('btn-comparar').disabled=true;return;}
     arquivoAtual=files[0]; arquivoAnterior=files[1];
     document.getElementById('info-arquivos').innerHTML=renderFileInfo(arquivoAtual,'atual','Estoque atual')+renderFileInfo(arquivoAnterior,'anterior','Estoque anterior');
     document.getElementById('btn-comparar').disabled=false;
@@ -772,7 +772,7 @@ function parsearEstoque(wb){
       var c2=String(row[2]||'').trim();
       var c3=String(row[3]||'').trim();
 
-      // ââ Processo ââââââââââââââââââââââââââââââââââââââââââââââ
+      // ── Processo ──────────────────────────────────────────────
       var rs=c0+' '+c1+' '+c2+' '+c3;
       if(/processo\s*[:\s]/i.test(rs)){
         var mp=rs.match(/[Pp]rocesso\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
@@ -780,7 +780,7 @@ function parsearEstoque(wb){
         continue;
       }
 
-      // ââ Nome (produto) ââââââââââââââââââââââââââââââââââââââââ
+      // ── Nome (produto) ────────────────────────────────────────
       var nc=(/^Nome\s*[:\s]/i.test(c0)?c0:(/^Nome\s*[:\s]/i.test(c1)?c1:null));
       if(nc){
         var mn=nc.match(/Nome\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
@@ -793,21 +793,21 @@ function parsearEstoque(wb){
         continue;
       }
 
-      // ââ Cor âââââââââââââââââââââââââââââââââââââââââââââââââââ
-      // Linha tem "Cor :" ou "Cor " (sem dois pontos, erro de digitaÃ§Ã£o)
+      // ── Cor ───────────────────────────────────────────────────
+      // Linha tem "Cor :" ou "Cor " (sem dois pontos, erro de digitação)
       // Aceita em col0, col1, col2 ou col3
       var corRaw=null;
       var cols=[c0,c1,c2,c3];
       for(var ci=0;ci<cols.length;ci++){
         if(/^Cor\s*[:\s]/i.test(cols[ci])){corRaw=cols[ci];break;}
       }
-      if(!corRaw) continue; // linha sem Cor â ignora (evita pegar totais intermediÃ¡rios)
+      if(!corRaw) continue; // linha sem Cor → ignora (evita pegar totais intermediários)
 
       var mc=corRaw.match(/^Cor\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
       var cor=mc?mc[1].replace(/\s+/g,' ').trim():'';
       if(!cor||!prod) continue;
 
-      // Quantidade: APENAS col4 (Ã­ndice 4) â nunca busca fallback em outras colunas
+      // Quantidade: APENAS col4 (índice 4) — nunca busca fallback em outras colunas
       // Isso evita pegar totais de processo/produto que ficam em linhas sem Cor
       var qtde=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
       if(isNaN(qtde)||qtde<=0) continue;
@@ -824,11 +824,11 @@ function parsearEstoque(wb){
   return {itens:itens,totais:totaisDeclarados};
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// â  VALIDAÃÃO DE INCONSISTÃNCIAS                                â
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  VALIDAÇÃO DE INCONSISTÊNCIAS                                ║
+// ╚══════════════════════════════════════════════════════════════╝
 
-// Valida um Ãºnico arquivo: totais declarados vs soma real das cores
+// Valida um único arquivo: totais declarados vs soma real das cores
 function validarEstoque(itens, totaisDeclarados, nomeArq) {
   var alertas = [];
 
@@ -842,7 +842,7 @@ function validarEstoque(itens, totaisDeclarados, nomeArq) {
 
   // Compara com totais declarados
   totaisDeclarados.forEach(function(td) {
-    if(!td.totalDeclarado) return; // total em branco â nÃ£o reporta
+    if(!td.totalDeclarado) return; // total em branco → não reporta
     var k = td.produto + '||' + td.processo;
     var real = somaReal[k] || 0;
     var diff = real - td.totalDeclarado;
@@ -863,13 +863,13 @@ function validarEstoque(itens, totaisDeclarados, nomeArq) {
   return alertas;
 }
 
-// Detecta possÃ­vel nome trocado: processo+cor+qtd igual mas produto diferente
+// Detecta possível nome trocado: processo+cor+qtd igual mas produto diferente
 function detectarNomesTrocados(dadosAnt, dadosAtu, nomeAnt, nomeAtu) {
   var alertas = [];
 
-  // Monta Ã­ndice do arquivo anterior por processo+cor+qtd â produto
-  // SÃ³ considera quando a quantidade Ã© idÃªntica ou diferenÃ§a < 2% (margem arredondamento)
-  var idxAnt = {}; // chave: processo||cor||qtdRounded â {produto, qtd}
+  // Monta índice do arquivo anterior por processo+cor+qtd → produto
+  // Só considera quando a quantidade é idêntica ou diferença < 2% (margem arredondamento)
+  var idxAnt = {}; // chave: processo||cor||qtdRounded → {produto, qtd}
   Object.keys(dadosAnt).forEach(function(chave) {
     var it = dadosAnt[chave];
     var qtdR = Math.round(it.qtd);
@@ -886,12 +886,12 @@ function detectarNomesTrocados(dadosAnt, dadosAtu, nomeAnt, nomeAtu) {
     var k = it.processo + '||' + it.cor + '||' + qtdR;
     var matches = idxAnt[k] || [];
     matches.forEach(function(m) {
-      if(m.produto === it.produto) return; // mesmo nome â ok
+      if(m.produto === it.produto) return; // mesmo nome → ok
       var rKey = [m.produto, it.produto, it.processo, it.cor].sort().join('|');
       if(jaReportado[rKey]) return;
       jaReportado[rKey] = true;
 
-      // Verifica se o nome antigo SUMIU do arquivo atual (reforÃ§a suspeita de renomeaÃ§Ã£o)
+      // Verifica se o nome antigo SUMIU do arquivo atual (reforça suspeita de renomeação)
       var nomeAntigoExisteAtual = Object.keys(dadosAtu).some(function(c) {
         return dadosAtu[c].produto === m.produto && dadosAtu[c].processo === it.processo;
       });
@@ -912,7 +912,7 @@ function detectarNomesTrocados(dadosAnt, dadosAtu, nomeAnt, nomeAtu) {
   return alertas;
 }
 
-// Renderiza painel de alertas colapsÃ¡vel
+// Renderiza painel de alertas colapsável
 function renderAlertasPanel(alertas) {
   var grupos = {total_incorreto: [], nome_trocado: []};
   alertas.forEach(function(a) {
@@ -922,25 +922,25 @@ function renderAlertasPanel(alertas) {
   var total = alertas.length;
   var h = '<div class="alerta-panel">';
   h += '<div class="alerta-panel-header" onclick="toggleAlertaPanel()">';
-  h += '<span class="alerta-panel-icon">â ï¸</span>';
-  h += '<span class="alerta-panel-titulo">InconsistÃªncias encontradas nos arquivos</span>';
+  h += '<span class="alerta-panel-icon">⚠️</span>';
+  h += '<span class="alerta-panel-titulo">Inconsistências encontradas nos arquivos</span>';
   h += '<span class="alerta-panel-count">'+total+'</span>';
-  h += '<span class="alerta-panel-toggle" id="alerta-toggle-txt">â¼ Ver detalhes</span>';
+  h += '<span class="alerta-panel-toggle" id="alerta-toggle-txt">▼ Ver detalhes</span>';
   h += '</div>';
   h += '<div class="alerta-panel-body" id="alerta-panel-body">';
 
   // Grupo: totais incorretos
   if(grupos.total_incorreto.length) {
     h += '<div class="alerta-grupo">';
-    h += '<div class="alerta-grupo-titulo">ð Total declarado â  soma das cores ('+grupos.total_incorreto.length+')</div>';
+    h += '<div class="alerta-grupo-titulo">📊 Total declarado ≠ soma das cores ('+grupos.total_incorreto.length+')</div>';
     grupos.total_incorreto.forEach(function(a) {
       var sinal = a.diff > 0 ? '+' : '';
       var critico = Math.abs(a.diff) > 1000;
       h += '<div class="alerta-item'+(critico?' critico':'')+'">';
-      h += '<b>'+a.produto+'</b> Â· Processo: '+a.processo;
+      h += '<b>'+a.produto+'</b> · Processo: '+a.processo;
       h += '<br>Arquivo: '+a.arquivo;
       h += '<br>Total declarado: <b>'+Math.round(a.totalDeclarado)+' m</b>';
-      h += ' â Soma real das cores: <b>'+Math.round(a.somaReal)+' m</b>';
+      h += ' → Soma real das cores: <b>'+Math.round(a.somaReal)+' m</b>';
       h += ' <span class="alerta-diff">('+sinal+Math.round(a.diff)+' m)</span>';
       h += '</div>';
     });
@@ -950,14 +950,14 @@ function renderAlertasPanel(alertas) {
   // Grupo: nomes possivelmente trocados
   if(grupos.nome_trocado.length) {
     h += '<div class="alerta-grupo">';
-    h += '<div class="alerta-grupo-titulo">ð PossÃ­vel nome trocado ('+grupos.nome_trocado.length+')</div>';
+    h += '<div class="alerta-grupo-titulo">🔄 Possível nome trocado ('+grupos.nome_trocado.length+')</div>';
     grupos.nome_trocado.forEach(function(a) {
       h += '<div class="alerta-item critico">';
-      h += 'Processo: <b>'+a.processo+'</b> Â· Cor: <b>'+a.cor+'</b> Â· Qtd: <b>'+Math.round(a.qtd)+' m</b>';
+      h += 'Processo: <b>'+a.processo+'</b> · Cor: <b>'+a.cor+'</b> · Qtd: <b>'+Math.round(a.qtd)+' m</b>';
       h += '<br>Antes: <b>'+a.nomeAnterior+'</b>';
-      h += ' â Depois: <b>'+a.nomeAtual+'</b>';
+      h += ' → Depois: <b>'+a.nomeAtual+'</b>';
       if(a.nomeAntigoDesapareceu) {
-        h += '<br><span style="color:#c04000">â  "'+a.nomeAnterior+'" nÃ£o existe mais neste processo no arquivo atual</span>';
+        h += '<br><span style="color:#c04000">⚠ "'+a.nomeAnterior+'" não existe mais neste processo no arquivo atual</span>';
       }
       h += '</div>';
     });
@@ -973,7 +973,7 @@ function toggleAlertaPanel() {
   var txt  = document.getElementById('alerta-toggle-txt');
   if(!body) return;
   var open = body.classList.toggle('open');
-  txt.textContent = open ? 'â² Fechar' : 'â¼ Ver detalhes';
+  txt.textContent = open ? '▲ Fechar' : '▼ Ver detalhes';
 }
 
 function compararEstoques(){
@@ -995,7 +995,7 @@ function renderComparacao(alertas){
   alertas=alertas||[];
   var esg=[],red=[],aum=[],nov=[],vol=[];
   // Chave agora inclui processo (produto||cor||processo)
-  // Esgotado = combinaÃ§Ã£o produto+cor+processo zerou ou sumiu
+  // Esgotado = combinação produto+cor+processo zerou ou sumiu
   Object.keys(dadosAnterior).forEach(function(chave){
     var ant=dadosAnterior[chave],atu=dadosAtual[chave];
     if(!atu||atu.qtd===0){
@@ -1024,14 +1024,14 @@ function renderComparacao(alertas){
   h+='<div class="stat-card blue"><div class="stat-label">Novos</div><div class="stat-value">'+nov.length+'</div></div>';
   h+='</div><div class="filter-bar">';
   h+='<button class="filter-btn active" onclick="filtrarResultado(\'todos\',this)">Todos</button>';
-  h+='<button class="filter-btn" onclick="filtrarResultado(\'esgotado\',this)">ð´ Esgotados ('+esg.length+')</button>';
-  h+='<button class="filter-btn" onclick="filtrarResultado(\'reduziu\',this)">ð¡ Reduziram ('+red.length+')</button>';
-  h+='<button class="filter-btn" onclick="filtrarResultado(\'aumentou\',this)">ð¢ Aumentaram ('+aum.length+')</button>';
-  h+='<button class="filter-btn" onclick="filtrarResultado(\'novo\',this)">ðµ Novos ('+nov.length+')</button>';
-  h+='<button class="filter-btn" onclick="filtrarResultado(\'voltou\',this)">ð£ Voltou ('+vol.length+')</button>';
+  h+='<button class="filter-btn" onclick="filtrarResultado(\'esgotado\',this)">🔴 Esgotados ('+esg.length+')</button>';
+  h+='<button class="filter-btn" onclick="filtrarResultado(\'reduziu\',this)">🟡 Reduziram ('+red.length+')</button>';
+  h+='<button class="filter-btn" onclick="filtrarResultado(\'aumentou\',this)">🟢 Aumentaram ('+aum.length+')</button>';
+  h+='<button class="filter-btn" onclick="filtrarResultado(\'novo\',this)">🔵 Novos ('+nov.length+')</button>';
+  h+='<button class="filter-btn" onclick="filtrarResultado(\'voltou\',this)">🟣 Voltou ('+vol.length+')</button>';
   h+='</div>';
-  // BotÃ£o exportar
-  h+='<button onclick="exportarComparacao()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;border:0.5px solid #27500a;background:#eaf3de;color:#27500a;font-size:13px;font-weight:600;cursor:pointer;">ð Exportar planilha da comparaÃ§Ã£o</button>';
+  // Botão exportar
+  h+='<button onclick="exportarComparacao()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;border:0.5px solid #27500a;background:#eaf3de;color:#27500a;font-size:13px;font-weight:600;cursor:pointer;">📊 Exportar planilha da comparação</button>';
   h+='<div id="lista-resultado" style="margin-top:12px">'+renderItens(_todosResultados)+'</div></div>';
   document.getElementById('resultado-comparacao').innerHTML=h;
 }
@@ -1044,8 +1044,8 @@ function renderItens(lista){
     var antStr = item.tipo==='esgotado' ? Math.round(item.qtdAnt)+' m' : Math.round(item.qtdAnt)+' m';
     var atuStr = item.tipo==='esgotado' ? 'zerado' : Math.round(item.qtdAtu)+' m';
     return '<div class="result-item '+item.tipo+'"><div class="result-produto">'+item.produto+'<span class="badge '+item.tipo+'">'+labs[item.tipo]+'</span></div>'
-      +'<div class="result-cor">'+item.cor+(item.processo?' Â· '+item.processo:'')+'</div>'
-      +'<div class="result-qtd"><span class="qtd-old">'+antStr+'</span><span class="qtd-arrow">â</span><span class="qtd-new '+cq+'">'+atuStr+'</span></div></div>';
+      +'<div class="result-cor">'+item.cor+(item.processo?' · '+item.processo:'')+'</div>'
+      +'<div class="result-qtd"><span class="qtd-old">'+antStr+'</span><span class="qtd-arrow">→</span><span class="qtd-new '+cq+'">'+atuStr+'</span></div></div>';
   }).join('');
 }
 function filtrarResultado(tipo,btn){
@@ -1055,7 +1055,7 @@ function filtrarResultado(tipo,btn){
 
 function exportarComparacao(){
   if(!_todosResultados||!_todosResultados.length){
-    alert('Nenhuma comparaÃ§Ã£o disponÃ­vel. Compare os estoques primeiro.');
+    alert('Nenhuma comparação disponível. Compare os estoques primeiro.');
     return;
   }
 
@@ -1063,14 +1063,14 @@ function exportarComparacao(){
   var nomeAnt = arquivoAnterior ? arquivoAnterior.name : 'Anterior';
   var nomeAtu = arquivoAtual    ? arquivoAtual.name    : 'Atual';
 
-  // CabeÃ§alho
+  // Cabeçalho
   var rows = [
-    ['COMPARAÃÃO DE ESTOQUE'],
+    ['COMPARAÇÃO DE ESTOQUE'],
     ['Arquivo anterior:', nomeAnt],
     ['Arquivo atual:',    nomeAtu],
     ['Gerado em:', new Date().toLocaleString('pt-BR')],
     [],
-    ['PRODUTO','COR','LOTE/PROCESSO','STATUS','QTD ANTERIOR (m)','QTD ATUAL (m)','DIFERENÃA (m)']
+    ['PRODUTO','COR','LOTE/PROCESSO','STATUS','QTD ANTERIOR (m)','QTD ATUAL (m)','DIFERENÇA (m)']
   ];
 
   var labsExport = {
@@ -1081,7 +1081,7 @@ function exportarComparacao(){
     voltou:   'Voltou ao estoque'
   };
 
-  // Ordena: esgotado â reduziu â aumentou â novo â voltou
+  // Ordena: esgotado → reduziu → aumentou → novo → voltou
   var ordem = {esgotado:0,reduziu:1,aumentou:2,novo:3,voltou:4};
   var sorted = _todosResultados.slice().sort(function(a,b){
     if(ordem[a.tipo]!==ordem[b.tipo]) return ordem[a.tipo]-ordem[b.tipo];
@@ -1116,15 +1116,15 @@ function exportarComparacao(){
     {wch:18}, // status
     {wch:16}, // qtd anterior
     {wch:14}, // qtd atual
-    {wch:14}  // diferenÃ§a
+    {wch:14}  // diferença
   ];
 
-  // Congela as 6 primeiras linhas (cabeÃ§alho)
+  // Congela as 6 primeiras linhas (cabeçalho)
   ws['!freeze'] = {xSplit:0, ySplit:6};
 
-  XLSX.utils.book_append_sheet(wb, ws, 'ComparaÃ§Ã£o');
+  XLSX.utils.book_append_sheet(wb, ws, 'Comparação');
 
-  // Nome do arquivo de saÃ­da baseado nas datas dos arquivos
+  // Nome do arquivo de saída baseado nas datas dos arquivos
   var hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'.');
   XLSX.writeFile(wb, 'COMPARACAO-ESTOQUE-'+hoje+'.xlsx');
 }
@@ -1135,7 +1135,7 @@ function selecionarTipo(chip){
   document.getElementById('resultado-comparacao').innerHTML='';buscarArquivos();
 }
 
-// ââ BUSCAR âââââââââââââââââââââââââââââââââââââââââââââ
+// ── BUSCAR ─────────────────────────────────────────────
 function selecionarTipoBusca(chip){
   document.querySelectorAll('#chips-busca .tipo-chip').forEach(function(c){c.classList.remove('selected');});chip.classList.add('selected');
   pastaBusca=chip.dataset.pastaId;document.getElementById('area-busca-produto').style.display='none';carregarUltimoEstoque();
@@ -1147,14 +1147,14 @@ function carregarUltimoEstoque(){
   .then(function(r){return r.json();})
   .then(function(data){
     var files=(data.files||[]).sort(function(a,b){return extrairDataDoNome(b.name)-extrairDataDoNome(a.name);});
-    if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">ð­</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
+    if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
     return downloadArquivo(files[0].id);
   })
   .then(function(r){
     if(!r)return;
     var dados=r.itens;
     document.getElementById('loading-busca').style.display='none';
-    // Valida inconsistÃªncias do arquivo de busca
+    // Valida inconsistências do arquivo de busca
     var alertasBusca=validarEstoque(dados,r.totais,pastaBusca||'');
     var divAlerta=document.getElementById('alerta-busca');
     if(divAlerta) divAlerta.innerHTML=alertasBusca.length?renderAlertasPanel(alertasBusca):'';
@@ -1169,17 +1169,17 @@ function filtrarProdutos(){
   renderProdutos(!q?todosProdutos:todosProdutos.filter(function(p){return p.nome.toLowerCase().includes(q)||p.cores.some(function(c){return c.cor.toLowerCase().includes(q)||(c.processo&&c.processo.toLowerCase().includes(q));});}));
 }
 function renderProdutos(lista){
-  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">ð</div><p>Nenhum produto encontrado</p></div>';return;}
+  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>';return;}
   document.getElementById('lista-produtos').innerHTML=lista.map(function(p,idx){
     var total=p.cores.reduce(function(s,c){return s+c.qtd;},0);
     var etInfo=buscarEtiquetaProduto(p.nome);
     var temEt=etInfo&&etInfo.etiquetas&&etInfo.etiquetas.length>0;
-    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">ð·</span>':'';
-    // PreÃ§o
+    var etTag=temEt?'<span style="font-size:10px;background:#e6f1fb;color:#0c447c;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">🏷</span>':'';
+    // Preço
     var piKey=normPreco(p.nome);
     var pi=tabelaPrecos[piKey]||null;
-    var precoBtn=pi?'<button class="preco-inline-btn" onclick="togglePrecoInline(event,'+idx+')">Ver preÃ§o</button>':'';
-    // EspecificaÃ§Ãµes (etiqueta) resumidas no header
+    var precoBtn=pi?'<button class="preco-inline-btn" onclick="togglePrecoInline(event,'+idx+')">Ver preço</button>':'';
+    // Especificações (etiqueta) resumidas no header
     var specsHtml='';
     if(temEt&&etInfo.etiquetas[0]){
       var e0=etInfo.etiquetas[0];
@@ -1187,14 +1187,14 @@ function renderProdutos(lista){
       if(e0.largura)parts.push(e0.largura);
       if(e0.gramatura)parts.push(e0.gramatura);
       if(e0.composicao)parts.push(e0.composicao);
-      if(parts.length)specsHtml='<div class="produto-specs">'+parts.join(' Â· ')+'</div>';
+      if(parts.length)specsHtml='<div class="produto-specs">'+parts.join(' · ')+'</div>';
     }
-    // Painel de preÃ§o oculto
+    // Painel de preço oculto
     var precoPanel='';
     if(pi){
       var labs=['Tab.1','Tab.2','Tab.3','Tab.4'];
       var isPE=/P\.E/.test(pi.disponibilidade||'');
-      var badgeLabel=isPE?'Pronta Entrega':'ProgramaÃ§Ã£o';
+      var badgeLabel=isPE?'Pronta Entrega':'Programação';
       var badgeColor=isPE?'#27500a':'#0c447c';
       var badgeBg=isPE?'#eaf3de':'#e6f1fb';
       precoPanel='<div class="preco-inline-panel" id="preco-panel-'+idx+'">';
@@ -1203,7 +1203,7 @@ function renderProdutos(lista){
         precoPanel+='<div class="preco-inline-faixa"><div class="preco-inline-label">'+labs[fi]+'</div><div class="preco-inline-valor">R$ '+pr.toFixed(2).replace('.',',')+'</div></div>';
       });
       precoPanel+='</div>';
-      precoPanel+='<div class="preco-inline-disp"><span style="background:'+badgeBg+';color:'+badgeColor+';font-weight:700;font-size:10px;padding:2px 8px;border-radius:10px;">'+badgeLabel+'</span>'+(pi.chegada?' Â· Chegada: '+pi.chegada:'')+'</div>';
+      precoPanel+='<div class="preco-inline-disp"><span style="background:'+badgeBg+';color:'+badgeColor+';font-weight:700;font-size:10px;padding:2px 8px;border-radius:10px;">'+badgeLabel+'</span>'+(pi.chegada?' · Chegada: '+pi.chegada:'')+'</div>';
       precoPanel+='</div>';
     }
     return '<div class="produto-card" id="prod-'+idx+'">'
@@ -1212,15 +1212,15 @@ function renderProdutos(lista){
       +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
       +'<span class="produto-nome">'+p.nome+'</span>'+etTag+precoBtn+'</div>'
       +specsHtml
-      +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) Â· '+Math.round(total)+' m</div>'
+      +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div>'
       +'</div>'
-      +'<span class="produto-arrow" style="flex-shrink:0">â¼</span></div>'
+      +'<span class="produto-arrow" style="flex-shrink:0">▼</span></div>'
       +precoPanel
       +'<div class="cores-list">'
       +p.cores.map(function(c){
         return '<div class="cor-item"><div style="flex:1">'
           +'<div class="cor-nome">'+c.cor+'</div>'
-          +(c.processo?'<div class="cor-processo">Processo: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">â  Sem processo</div>')
+          +(c.processo?'<div class="cor-processo">Processo: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">⚠ Sem processo</div>')
           +'</div><div class="cor-qtd">'+Math.round(c.qtd)+' m</div></div>';
       }).join('')
       +(temEt?renderEtiqueta(etInfo):'')
@@ -1234,12 +1234,12 @@ function togglePrecoInline(evt,idx){
   if(!panel)return;
   var open=panel.classList.toggle('open');
   var btn=evt.target;
-  btn.textContent=open?'Ocultar preÃ§o':'Ver preÃ§o';
+  btn.textContent=open?'Ocultar preço':'Ver preço';
 }
 
 function toggleProduto(idx){document.getElementById('prod-'+idx).classList.toggle('open');}
 
-// ââ PREÃOS âââââââââââââââââââââââââââââââââââââââââââââ
+// ── PREÇOS ─────────────────────────────────────────────
 function selecionarFonte(fonte){
   fonteSelecionada=fonte;
   document.getElementById('fonte-upload').classList.toggle('active',fonte==='upload');
@@ -1252,7 +1252,7 @@ function carregarTabelaUpload(input){
   if(!input.files.length)return;
   var file=input.files[0];
   var nome=file.name.toLowerCase();
-  document.getElementById('upload-tabela-label').textContent='â³ Processando...';
+  document.getElementById('upload-tabela-label').textContent='⏳ Processando...';
 
   if(nome.endsWith('.xlsx')||nome.endsWith('.xls')){
     var reader=new FileReader();
@@ -1306,8 +1306,8 @@ function carregarTabelaUpload(input){
   }
 }
 
-// ââ PARSER PDF âââââââââââââââââââââââââââââââââââââââââ
-// Formato da tabela Beta (extraÃ­do via pdf.js):
+// ── PARSER PDF ─────────────────────────────────────────
+// Formato da tabela Beta (extraído via pdf.js):
 // NOME COMERCIAL UN TABELA 26/4 TABELA 26/5 TABELA26/6 TABELA DISPONIBILIDADE CHEGADA
 function parsearTabelaPDF(texto){
   var result={};
@@ -1415,11 +1415,11 @@ function renderTabelaSalvaCard(nome,qtd){
   var area=document.getElementById('area-upload-tabela');
   area.innerHTML='<div class="tabela-salva-card">'
     +'<div><div class="tabela-salva-nome">'+nome+'</div><div class="tabela-salva-qtd">'+qtd+' produtos carregados</div></div>'
-    +'<button class="tabela-salva-del" onclick="excluirTabelaSalva()" title="Excluir tabela">ð</button>'
+    +'<button class="tabela-salva-del" onclick="excluirTabelaSalva()" title="Excluir tabela">🗑</button>'
     +'</div>'
     +'<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;margin-top:4px">'
     +'<input type="file" accept=".pdf,.xlsx,.xls" onchange="carregarTabelaUpload(this)" style="display:none">'
-    +'ð Substituir tabela</label>';
+    +'📁 Substituir tabela</label>';
 }
 
 function carregarTabelaSalva(){
@@ -1431,7 +1431,7 @@ function carregarTabelaSalva(){
     var m=JSON.parse(meta);
     var qtd=Object.keys(tabelaPrecos).length;
     if(!qtd) return;
-    renderTabelaSalvaCard(m.nome+'  Â·  salva em '+m.data, qtd);
+    renderTabelaSalvaCard(m.nome+'  ·  salva em '+m.data, qtd);
     document.getElementById('area-data-prog').style.display='block';
     document.getElementById('area-cruzar').style.display='block';
   } catch(e){ console.log('Erro ao carregar tabela salva:',e); }
@@ -1439,16 +1439,16 @@ function carregarTabelaSalva(){
 
 function abrirFilePicker(){var f=document.getElementById('file-tabela');if(f)f.click();}
 function excluirTabelaSalva(){
-  if(!confirm('Excluir tabela de preÃ§os salva?')) return;
+  if(!confirm('Excluir tabela de preços salva?')) return;
   localStorage.removeItem(TABELA_STORAGE_KEY);
   localStorage.removeItem(TABELA_META_KEY);
   tabelaPrecos={};
-  // Restaura Ã¡rea de upload
+  // Restaura área de upload
   document.getElementById('area-upload-tabela').innerHTML=
     '<div class="upload-area" id="upload-tabela-area" onclick="abrirFilePicker()">'
     +'<input type="file" id="file-tabela" accept=".pdf,.xlsx,.xls,.doc,.docx" onchange="carregarTabelaUpload(this)" style="display:none">'
-    +'<div class="upload-icon">ð</div>'
-    +'<div class="upload-title" id="upload-tabela-label">Selecionar tabela de preÃ§os</div>'
+    +'<div class="upload-icon">📄</div>'
+    +'<div class="upload-title" id="upload-tabela-label">Selecionar tabela de preços</div>'
     +'<div class="upload-sub">PDF, Excel ou Word</div>'
     +'</div>';
   document.getElementById('area-data-prog').style.display='none';
@@ -1469,7 +1469,7 @@ function buscarTabelaEmail(){
     var parts=msg.payload.parts||[];
     var anexoId=null,anexoNome='';
     parts.forEach(function(p){if(p.filename&&(p.filename.toLowerCase().includes('tabela')||p.filename.toLowerCase().includes('preco'))){anexoId=(p.body&&p.body.attachmentId)?p.body.attachmentId:null;anexoNome=p.filename;}});
-    if(!anexoId)throw new Error('Tabela nÃ£o encontrada. Use o upload manual.');
+    if(!anexoId)throw new Error('Tabela não encontrada. Use o upload manual.');
     return fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/'+msg.id+'/attachments/'+anexoId,{headers:{Authorization:'Bearer '+token}})
     .then(function(r){return r.json();}).then(function(att){
       var b64=att.data.replace(/-/g,'+').replace(/_/g,'/');
@@ -1493,7 +1493,7 @@ function selecionarTipoPrecos(chip){
 }
 
 function cruzarPrecosEstoque(){
-  if(!Object.keys(tabelaPrecos).length){alert('Carregue uma tabela de preÃ§os primeiro!');return;}
+  if(!Object.keys(tabelaPrecos).length){alert('Carregue uma tabela de preços primeiro!');return;}
   document.getElementById('loading-precos').style.display='block';
   document.getElementById('resultado-precos').innerHTML='';
   var q="'"+pastaPrecos+"' in parents and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' and trashed=false";
@@ -1516,7 +1516,7 @@ function renderPrecosEstoque(estoque){
     mapa[item.produto].cores.push(item);mapa[item.produto].totalQtd+=item.qtd;
   });
   var sel=document.getElementById('sel-mes');
-  var dataPadrao=document.getElementById('sel-quinzena').value+'Âª Quinzena de '+sel.options[sel.selectedIndex].text+' '+document.getElementById('sel-ano').value;
+  var dataPadrao=document.getElementById('sel-quinzena').value+'ª Quinzena de '+sel.options[sel.selectedIndex].text+' '+document.getElementById('sel-ano').value;
   var comPreco=[],semPreco=[];
   Object.keys(mapa).sort().forEach(function(nome){
     var pi=tabelaPrecos[normPreco(nome)];
@@ -1524,8 +1524,8 @@ function renderPrecosEstoque(estoque){
     else semPreco.push({nome:nome,info:mapa[nome]});
   });
   var h='<div style="margin-top:20px"><p class="section-label">Resumo</p><div class="stats-grid">';
-  h+='<div class="stat-card green"><div class="stat-label">Com preÃ§o</div><div class="stat-value">'+comPreco.length+'</div></div>';
-  h+='<div class="stat-card red"><div class="stat-label">Sem preÃ§o</div><div class="stat-value">'+semPreco.length+'</div></div>';
+  h+='<div class="stat-card green"><div class="stat-label">Com preço</div><div class="stat-value">'+comPreco.length+'</div></div>';
+  h+='<div class="stat-card red"><div class="stat-label">Sem preço</div><div class="stat-value">'+semPreco.length+'</div></div>';
   h+='</div>';
   h+='<div class="search-wrap"><span class="search-icon">[busca]</span><input type="text" id="input-precos" placeholder="Filtrar produto..." oninput="filtrarPrecos()"></div>';
   h+='<div id="lista-precos">'+renderListaPrecos(comPreco,semPreco,dataPadrao)+'</div></div>';
@@ -1536,7 +1536,7 @@ function renderPrecosEstoque(estoque){
 function renderListaPrecos(comPreco,semPreco,dataPadrao){
   var h='';
   if(comPreco.length){
-    h+='<p class="section-label">Com preÃ§o ('+comPreco.length+')</p>';
+    h+='<p class="section-label">Com preço ('+comPreco.length+')</p>';
     comPreco.forEach(function(item,idx){
       var p=item.preco;
       var pMin=p.precos[0];
@@ -1544,11 +1544,11 @@ function renderListaPrecos(comPreco,semPreco,dataPadrao){
       var chegada=p.chegada||extrairDataProg(dispTxt)||dataPadrao;
       var isPE=dispTxt.toUpperCase().includes('P.E');
       var badgeClass=isPE?'pe':'prog';
-      var badgeLabel=isPE?'Pronta Entrega':'ProgramaÃ§Ã£o';
+      var badgeLabel=isPE?'Pronta Entrega':'Programação';
       h+='<div class="preco-card" id="pc-'+idx+'">';
       h+='<div class="preco-header" onclick="togglePreco('+idx+')">';
       h+='<div class="preco-nome">'+item.nome+'<span class="badge '+badgeClass+'" style="margin-left:6px">'+badgeLabel+'</span></div>';
-      h+='<div style="display:flex;align-items:center;gap:4px"><span class="preco-destaque">R$ '+pMin.toFixed(2).replace('.',',')+'</span><span class="preco-arrow">â¼</span></div>';
+      h+='<div style="display:flex;align-items:center;gap:4px"><span class="preco-destaque">R$ '+pMin.toFixed(2).replace('.',',')+'</span><span class="preco-arrow">▼</span></div>';
       h+='</div><div class="preco-detalhes">';
       h+='<div class="preco-faixas">';
       var fLabs=['Tabela 1','Tabela 2','Tabela 3','Tabela 4'];
@@ -1556,16 +1556,16 @@ function renderListaPrecos(comPreco,semPreco,dataPadrao){
         h+='<div class="preco-faixa'+(fi===0?' ativo':'')+'"><div class="preco-faixa-label">'+fLabs[fi]+'</div><div class="preco-faixa-valor">R$ '+pr.toFixed(2).replace('.',',')+'</div></div>';
       });
       h+='</div>';
-      if(!isPE)h+='<div class="preco-row"><span class="preco-row-label">PrevisÃ£o de chegada</span><span class="preco-row-value" style="color:#185fa5">'+chegada+'</span></div>';
+      if(!isPE)h+='<div class="preco-row"><span class="preco-row-label">Previsão de chegada</span><span class="preco-row-value" style="color:#185fa5">'+chegada+'</span></div>';
       h+='<div class="preco-row"><span class="preco-row-label">Qtd em estoque</span><span class="preco-row-value">'+Math.round(item.info.totalQtd)+' m</span></div>';
       item.info.cores.forEach(function(c){
-        h+='<div class="preco-row" style="padding-left:24px"><span class="preco-row-label" style="color:var(--text3)">'+c.cor+(c.processo?' Â· '+c.processo:'')+'</span><span class="preco-row-value">'+Math.round(c.qtd)+' m</span></div>';
+        h+='<div class="preco-row" style="padding-left:24px"><span class="preco-row-label" style="color:var(--text3)">'+c.cor+(c.processo?' · '+c.processo:'')+'</span><span class="preco-row-value">'+Math.round(c.qtd)+' m</span></div>';
       });
       h+='</div></div>';
     });
   }
   if(semPreco.length){
-    h+='<p class="section-label" style="margin-top:20px">Sem preÃ§o na tabela ('+semPreco.length+')</p>';
+    h+='<p class="section-label" style="margin-top:20px">Sem preço na tabela ('+semPreco.length+')</p>';
     semPreco.forEach(function(item){
       h+='<div class="preco-card"><div class="preco-header" style="cursor:default"><div class="preco-nome">'+item.nome+'</div><span style="font-size:12px;color:var(--text3)">'+Math.round(item.info.totalQtd)+' m</span></div></div>';
     });
@@ -1575,10 +1575,10 @@ function renderListaPrecos(comPreco,semPreco,dataPadrao){
 
 function extrairDataProg(txt){
   if(!txt)return null;
-  var m=txt.match(/PROG[A-ZÃÃÃ\s]*([\wÃÃÃÃÃÃÃÃÃ]+)\s*(\d+)[Âªa]\s*QUINZENA/i);
-  if(m)return m[2]+'Âª Quinzena de '+m[1];
-  m=txt.match(/(\d+)[Âªa]\s*QUINZENA\s*([\wÃÃÃÃÃÃÃÃÃ]+)/i);
-  if(m)return m[1]+'Âª Quinzena de '+m[2];
+  var m=txt.match(/PROG[A-ZÇÃÕ\s]*([\wÇÃÕÊÉÁÍÓÚ]+)\s*(\d+)[ªa]\s*QUINZENA/i);
+  if(m)return m[2]+'ª Quinzena de '+m[1];
+  m=txt.match(/(\d+)[ªa]\s*QUINZENA\s*([\wÇÃÕÊÉÁÍÓÚ]+)/i);
+  if(m)return m[1]+'ª Quinzena de '+m[2];
   return null;
 }
 
@@ -1592,7 +1592,7 @@ function filtrarPrecos(){
 
 function togglePreco(idx){document.getElementById('pc-'+idx).classList.toggle('open');}
 
-// ââ NAV ââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── NAV ────────────────────────────────────────────────
 function trocarTela(tela,btn){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
