@@ -141,6 +141,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .badge.pe   { background: #eaf3de; color: #27500a; }
 .badge.prog { background: #e6f1fb; color: #0c447c; }
 /* Preços no card de produto */
+.alerta-panel { background:#fff8e6; border:1px solid #f0c040; border-radius:10px; margin-top:14px; overflow:hidden; }
+.alerta-panel-header { display:flex; align-items:center; gap:8px; padding:12px 14px; cursor:pointer; user-select:none; }
+.alerta-panel-icon { font-size:18px; }
+.alerta-panel-titulo { font-size:13px; font-weight:700; color:#7a4f00; flex:1; }
+.alerta-panel-count { background:#f0c040; color:#7a4f00; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.alerta-panel-toggle { font-size:11px; color:#a07030; }
+.alerta-panel-body { display:none; border-top:1px solid #f0c040; padding:0; }
+.alerta-panel-body.open { display:block; }
+.alerta-grupo { padding:10px 14px; border-bottom:0.5px solid #f5dfa0; }
+.alerta-grupo:last-child { border-bottom:none; }
+.alerta-grupo-titulo { font-size:11px; font-weight:700; color:#a07030; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.alerta-item { font-size:12px; color:#4a3000; padding:5px 8px; background:#fffbef; border-radius:6px; margin-bottom:4px; line-height:1.5; border-left:3px solid #f0c040; }
+.alerta-item.critico { border-left-color:#e05020; background:#fff0eb; }
+.alerta-item b { color:#7a4f00; }
+.alerta-item .alerta-diff { color:#c04000; font-weight:700; }
+
 .preco-inline-btn { font-size:11px; font-weight:600; padding:3px 9px; border-radius:12px; border:0.5px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; margin-left:8px; white-space:nowrap; }
 .preco-inline-panel { display:none; background:#f5f5f0; border-top:0.5px solid var(--border); padding:10px 14px; }
 .preco-inline-panel.open { display:block; }
@@ -234,6 +250,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. Programação</div>
       <div class="tipo-chip" data-pasta-id="1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN" onclick="selecionarTipoBusca(this)">Fem. Promoção</div>
     </div>
+    <div id="alerta-busca"></div>
     <div id="loading-busca" style="display:none" class="loading mt16"><span class="spinner"></span> Carregando estoque...</div>
 
     <div id="area-busca-produto" style="display:none">
@@ -739,10 +756,11 @@ function renderFileInfo(f,tipo,label){
 function downloadArquivo(id){
   return fetch('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media',{headers:{Authorization:'Bearer '+token}})
   .then(function(r){return r.arrayBuffer();})
-  .then(function(buf){return parsearEstoque(XLSX.read(buf,{type:'array'}));});
+  .then(function(buf){var r=parsearEstoque(XLSX.read(buf,{type:'array'}));return r;});
 }
 function parsearEstoque(wb){
   var itens={};
+  var totaisDeclarados=[]; // {produto, processo, totalDeclarado, nLinha}
   for(var si=0;si<wb.SheetNames.length;si++){
     var sheet=wb.Sheets[wb.SheetNames[si]];
     var rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
@@ -755,21 +773,24 @@ function parsearEstoque(wb){
       var c3=String(row[3]||'').trim();
 
       // ── Processo ──────────────────────────────────────────────
-      // Linha tem "Processo:" em qualquer coluna → captura e ignora o restante
       var rs=c0+' '+c1+' '+c2+' '+c3;
       if(/processo\s*[:\s]/i.test(rs)){
         var mp=rs.match(/[Pp]rocesso\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
         if(mp) proc=mp[1].trim();
-        continue; // ignora qualquer qtd nesta linha (é total de processo)
+        continue;
       }
 
       // ── Nome (produto) ────────────────────────────────────────
-      // Linha tem "Nome :" → captura produto, ignora qtd (é total de produto)
       var nc=(/^Nome\s*[:\s]/i.test(c0)?c0:(/^Nome\s*[:\s]/i.test(c1)?c1:null));
       if(nc){
         var mn=nc.match(/Nome\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
         prod=mn?mn[1].replace(/\s+/g,' ').trim().replace(/\*+$/,'').trim():'';
-        continue; // ignora qtd desta linha (é total do produto)
+        // Captura total declarado na linha do Nome (col4)
+        var tdVal=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
+        if(!isNaN(tdVal)&&tdVal>0){
+          totaisDeclarados.push({produto:prod,processo:proc,totalDeclarado:tdVal,linha:i+1});
+        }
+        continue;
       }
 
       // ── Cor ───────────────────────────────────────────────────
@@ -798,18 +819,180 @@ function parsearEstoque(wb){
       if(!itens[chave]) itens[chave]={produto:prodNorm,cor:corNorm,qtd:0,processo:procNorm};
       itens[chave].qtd+=qtde;
     }
-    if(Object.keys(itens).length>0) return itens;
+    if(Object.keys(itens).length>0) return {itens:itens,totais:totaisDeclarados};
   }
-  return itens;
+  return {itens:itens,totais:totaisDeclarados};
 }
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  VALIDAÇÃO DE INCONSISTÊNCIAS                                ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// Valida um único arquivo: totais declarados vs soma real das cores
+function validarEstoque(itens, totaisDeclarados, nomeArq) {
+  var alertas = [];
+
+  // Agrupa soma real por produto+processo
+  var somaReal = {};
+  Object.keys(itens).forEach(function(chave) {
+    var item = itens[chave];
+    var k = item.produto + '||' + item.processo;
+    somaReal[k] = (somaReal[k] || 0) + item.qtd;
+  });
+
+  // Compara com totais declarados
+  totaisDeclarados.forEach(function(td) {
+    if(!td.totalDeclarado) return; // total em branco → não reporta
+    var k = td.produto + '||' + td.processo;
+    var real = somaReal[k] || 0;
+    var diff = real - td.totalDeclarado;
+    if(Math.abs(diff) > 0.5) {
+      alertas.push({
+        tipo: 'total_incorreto',
+        arquivo: nomeArq,
+        produto: td.produto,
+        processo: td.processo,
+        totalDeclarado: td.totalDeclarado,
+        somaReal: real,
+        diff: diff,
+        linha: td.linha
+      });
+    }
+  });
+
+  return alertas;
+}
+
+// Detecta possível nome trocado: processo+cor+qtd igual mas produto diferente
+function detectarNomesTrocados(dadosAnt, dadosAtu, nomeAnt, nomeAtu) {
+  var alertas = [];
+
+  // Monta índice do arquivo anterior por processo+cor+qtd → produto
+  // Só considera quando a quantidade é idêntica ou diferença < 2% (margem arredondamento)
+  var idxAnt = {}; // chave: processo||cor||qtdRounded → {produto, qtd}
+  Object.keys(dadosAnt).forEach(function(chave) {
+    var it = dadosAnt[chave];
+    var qtdR = Math.round(it.qtd);
+    var k = it.processo + '||' + it.cor + '||' + qtdR;
+    if(!idxAnt[k]) idxAnt[k] = [];
+    idxAnt[k].push({produto: it.produto, qtd: it.qtd});
+  });
+
+  // Procura no arquivo atual entradas com mesmo processo+cor+qtd mas produto diferente
+  var jaReportado = {};
+  Object.keys(dadosAtu).forEach(function(chave) {
+    var it = dadosAtu[chave];
+    var qtdR = Math.round(it.qtd);
+    var k = it.processo + '||' + it.cor + '||' + qtdR;
+    var matches = idxAnt[k] || [];
+    matches.forEach(function(m) {
+      if(m.produto === it.produto) return; // mesmo nome → ok
+      var rKey = [m.produto, it.produto, it.processo, it.cor].sort().join('|');
+      if(jaReportado[rKey]) return;
+      jaReportado[rKey] = true;
+
+      // Verifica se o nome antigo SUMIU do arquivo atual (reforça suspeita de renomeação)
+      var nomeAntigoExisteAtual = Object.keys(dadosAtu).some(function(c) {
+        return dadosAtu[c].produto === m.produto && dadosAtu[c].processo === it.processo;
+      });
+
+      alertas.push({
+        tipo: 'nome_trocado',
+        processo: it.processo,
+        cor: it.cor,
+        qtd: it.qtd,
+        nomeAnterior: m.produto,
+        nomeAtual: it.produto,
+        nomeAntigoDesapareceu: !nomeAntigoExisteAtual,
+        arquivo: nomeAtu
+      });
+    });
+  });
+
+  return alertas;
+}
+
+// Renderiza painel de alertas colapsável
+function renderAlertasPanel(alertas) {
+  var grupos = {total_incorreto: [], nome_trocado: []};
+  alertas.forEach(function(a) {
+    if(grupos[a.tipo]) grupos[a.tipo].push(a);
+  });
+
+  var total = alertas.length;
+  var h = '<div class="alerta-panel">';
+  h += '<div class="alerta-panel-header" onclick="toggleAlertaPanel()">';
+  h += '<span class="alerta-panel-icon">⚠️</span>';
+  h += '<span class="alerta-panel-titulo">Inconsistências encontradas nos arquivos</span>';
+  h += '<span class="alerta-panel-count">'+total+'</span>';
+  h += '<span class="alerta-panel-toggle" id="alerta-toggle-txt">▼ Ver detalhes</span>';
+  h += '</div>';
+  h += '<div class="alerta-panel-body" id="alerta-panel-body">';
+
+  // Grupo: totais incorretos
+  if(grupos.total_incorreto.length) {
+    h += '<div class="alerta-grupo">';
+    h += '<div class="alerta-grupo-titulo">📊 Total declarado ≠ soma das cores ('+grupos.total_incorreto.length+')</div>';
+    grupos.total_incorreto.forEach(function(a) {
+      var sinal = a.diff > 0 ? '+' : '';
+      var critico = Math.abs(a.diff) > 1000;
+      h += '<div class="alerta-item'+(critico?' critico':'')+'">';
+      h += '<b>'+a.produto+'</b> · Processo: '+a.processo;
+      h += '<br>Arquivo: '+a.arquivo;
+      h += '<br>Total declarado: <b>'+Math.round(a.totalDeclarado)+' m</b>';
+      h += ' → Soma real das cores: <b>'+Math.round(a.somaReal)+' m</b>';
+      h += ' <span class="alerta-diff">('+sinal+Math.round(a.diff)+' m)</span>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  // Grupo: nomes possivelmente trocados
+  if(grupos.nome_trocado.length) {
+    h += '<div class="alerta-grupo">';
+    h += '<div class="alerta-grupo-titulo">🔄 Possível nome trocado ('+grupos.nome_trocado.length+')</div>';
+    grupos.nome_trocado.forEach(function(a) {
+      h += '<div class="alerta-item critico">';
+      h += 'Processo: <b>'+a.processo+'</b> · Cor: <b>'+a.cor+'</b> · Qtd: <b>'+Math.round(a.qtd)+' m</b>';
+      h += '<br>Antes: <b>'+a.nomeAnterior+'</b>';
+      h += ' → Depois: <b>'+a.nomeAtual+'</b>';
+      if(a.nomeAntigoDesapareceu) {
+        h += '<br><span style="color:#c04000">⚠ "'+a.nomeAnterior+'" não existe mais neste processo no arquivo atual</span>';
+      }
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  h += '</div></div>';
+  return h;
+}
+
+function toggleAlertaPanel() {
+  var body = document.getElementById('alerta-panel-body');
+  var txt  = document.getElementById('alerta-toggle-txt');
+  if(!body) return;
+  var open = body.classList.toggle('open');
+  txt.textContent = open ? '▲ Fechar' : '▼ Ver detalhes';
+}
+
 function compararEstoques(){
   document.getElementById('resultado-comparacao').innerHTML='<div class="loading mt16"><span class="spinner"></span> Baixando e comparando...</div>';
   document.getElementById('btn-comparar').disabled=true;
   Promise.all([downloadArquivo(arquivoAnterior.id),downloadArquivo(arquivoAtual.id)])
-  .then(function(r){dadosAnterior=r[0];dadosAtual=r[1];renderComparacao();document.getElementById('btn-comparar').disabled=false;})
+  .then(function(r){
+    dadosAnterior=r[0].itens;dadosAtual=r[1].itens;
+    var alertas=[];
+    alertas=alertas.concat(validarEstoque(r[0].itens,r[0].totais,arquivoAnterior.name));
+    alertas=alertas.concat(validarEstoque(r[1].itens,r[1].totais,arquivoAtual.name));
+    alertas=alertas.concat(detectarNomesTrocados(r[0].itens,r[1].itens,arquivoAnterior.name,arquivoAtual.name));
+    renderComparacao(alertas);
+    document.getElementById('btn-comparar').disabled=false;
+  })
   .catch(function(){document.getElementById('resultado-comparacao').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>Erro ao baixar arquivos.</p></div>';document.getElementById('btn-comparar').disabled=false;});
 }
-function renderComparacao(){
+function renderComparacao(alertas){
+  alertas=alertas||[];
   var esg=[],red=[],aum=[],nov=[],vol=[];
   // Chave agora inclui processo (produto||cor||processo)
   // Esgotado = combinação produto+cor+processo zerou ou sumiu
@@ -832,7 +1015,9 @@ function renderComparacao(){
     }
   });
   _todosResultados=esg.concat(red).concat(aum).concat(nov).concat(vol);
-  var h='<div style="margin-top:20px"><p class="section-label">Resultado</p><div class="stats-grid">';
+  var h='<div style="margin-top:20px">';
+  if(alertas.length>0) h+=renderAlertasPanel(alertas);
+  h+='<p class="section-label" style="margin-top:14px">Resultado</p><div class="stats-grid">';
   h+='<div class="stat-card red"><div class="stat-label">Esgotados</div><div class="stat-value">'+esg.length+'</div></div>';
   h+='<div class="stat-card amber"><div class="stat-label">Reduziram</div><div class="stat-value">'+red.length+'</div></div>';
   h+='<div class="stat-card green"><div class="stat-label">Aumentaram</div><div class="stat-value">'+aum.length+'</div></div>';
@@ -965,9 +1150,14 @@ function carregarUltimoEstoque(){
     if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
     return downloadArquivo(files[0].id);
   })
-  .then(function(dados){
-    if(!dados)return;
+  .then(function(r){
+    if(!r)return;
+    var dados=r.itens;
     document.getElementById('loading-busca').style.display='none';
+    // Valida inconsistências do arquivo de busca
+    var alertasBusca=validarEstoque(dados,r.totais,pastaBusca||'');
+    var divAlerta=document.getElementById('alerta-busca');
+    if(divAlerta) divAlerta.innerHTML=alertasBusca.length?renderAlertasPanel(alertasBusca):'';
     var mapa={};Object.keys(dados).forEach(function(c){var item=dados[c];if(!mapa[item.produto])mapa[item.produto]=[];mapa[item.produto].push({cor:item.cor,qtd:item.qtd,processo:item.processo});});
     todosProdutos=Object.keys(mapa).sort().map(function(n){return{nome:n,cores:mapa[n]};});
     document.getElementById('input-busca').value='';renderProdutos(todosProdutos);document.getElementById('area-busca-produto').style.display='block';
