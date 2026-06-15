@@ -748,7 +748,7 @@ function buscarArquivos() {
   })
   .catch(function(){document.getElementById('loading-arquivos').style.display='none';token=null;localStorage.removeItem('drive_token');});
 }
-function extrairDataDoNome(n){var m=n.match(/(\d{2})\.(\d{2})\.(\d{2})[\.\s]/);if(m)return new Date(2000+parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1])).getTime();return 0;}
+function extrairDataDoNome(n){var m=n.match(/(\d{2})\.(\d{2})\.(\d{2,4})(?:[^0-9]|$)/);if(m){var y=m[3].length===4?parseInt(m[3]):2000+parseInt(m[3]);return new Date(y,parseInt(m[2])-1,parseInt(m[1])).getTime();}m=n.match(/(\d{2})_(\d{2})_(\d{2,4})/);if(m){var y=m[3].length===4?parseInt(m[3]):2000+parseInt(m[3]);return new Date(y,parseInt(m[2])-1,parseInt(m[1])).getTime();}return 0;}
 function renderFileInfo(f,tipo,label){
   var d=extrairDataDoNome(f.name);var ds=d>0?new Date(d).toLocaleDateString('pt-BR'):new Date(f.modifiedTime).toLocaleDateString('pt-BR');
   return '<div class="file-info"><div class="file-icon">[xls]</div><div style="flex:1"><div class="file-name">'+f.name+'</div><div class="file-date">'+ds+'</div></div><span class="file-badge '+tipo+'">'+label+'</span></div>';
@@ -1143,10 +1143,10 @@ function selecionarTipoBusca(chip){
 function carregarUltimoEstoque(){
   document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];
   var q="'"+pastaBusca+"' in parents and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' and trashed=false";
-  fetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&orderBy=name+desc&fields=files(id,name,modifiedTime)&pageSize=5',{headers:{Authorization:'Bearer '+token}})
+  fetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime)&pageSize=20',{headers:{Authorization:'Bearer '+token}})
   .then(function(r){return r.json();})
   .then(function(data){
-    var files=(data.files||[]).sort(function(a,b){return extrairDataDoNome(b.name)-extrairDataDoNome(a.name);});
+    var files=(data.files||[]).sort(function(a,b){var da=extrairDataDoNome(a.name),db=extrairDataDoNome(b.name);if(da&&db)return db-da;return new Date(b.modifiedTime)-new Date(a.modifiedTime);});
     if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
     return downloadArquivo(files[0].id);
   })
