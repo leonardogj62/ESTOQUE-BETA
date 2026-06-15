@@ -746,25 +746,59 @@ function parsearEstoque(wb){
   for(var si=0;si<wb.SheetNames.length;si++){
     var sheet=wb.Sheets[wb.SheetNames[si]];
     var rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
-    var prod='',cor='',proc='';
+    var prod='',proc='';
     for(var i=0;i<rows.length;i++){
       var row=rows[i];
-      var c0=String(row[0]||'').trim(),c1=String(row[1]||'').trim(),c2=String(row[2]||'').trim();
-      var rs=row.map(function(c){return String(c||'');}).join(' ');
-      var mp=rs.match(/[Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo]\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
-      if(mp&&rs.toLowerCase().indexOf('processo')>=0){proc=mp[1].trim();continue;}
-      var nc=(c0.startsWith('Nome :')||c0.startsWith('Nome:'))?c0:(c1.startsWith('Nome :')||c1.startsWith('Nome:'))?c1:null;
-      if(nc){var m=nc.match(/Nome\s*:\s*(.+?)(?:\s*\(|$)/);prod=m?m[1].trim():nc.replace(/Nome\s*:/i,'').trim();cor='';continue;}
-      var cc=(c0.startsWith('Cor :')||c0.startsWith('Cor:'))?c0:(c1.startsWith('Cor :')||c1.startsWith('Cor:'))?c1:(c2.startsWith('Cor :')||c2.startsWith('Cor:'))?c2:null;
-      if(cc){
-        var mc=cc.match(/Cor\s*:\s*(.+?)(?:\s*\(|$)/);cor=mc?mc[1].trim():cc.replace(/Cor\s*:/i,'').trim();
-        var qtde=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
-        if(isNaN(qtde)||qtde<=0){for(var j=0;j<row.length;j++){var cell=String(row[j]||'').trim();if(!cell||cell==='Qtde em Estoque'||cell==='SubClasse'||cell==='0')continue;var n=parseFloat(cell.replace(/\./g,'').replace(',','.'));if(!isNaN(n)&&n>0&&/^\d/.test(cell)){qtde=n;break;}}}
-        if(prod&&cor&&qtde>0){var prodNorm=prod.replace(/\s+/g,' ').trim();var corNorm=cor.replace(/\s+/g,' ').trim();var chave=prodNorm+'||'+corNorm;if(!itens[chave])itens[chave]={produto:prodNorm,cor:corNorm,qtd:0,processo:proc};itens[chave].qtd+=qtde;}
-        continue;
+      var c0=String(row[0]||'').trim();
+      var c1=String(row[1]||'').trim();
+      var c2=String(row[2]||'').trim();
+      var c3=String(row[3]||'').trim();
+
+      // ── Processo ──────────────────────────────────────────────
+      // Linha tem "Processo:" em qualquer coluna → captura e ignora o restante
+      var rs=c0+' '+c1+' '+c2+' '+c3;
+      if(/processo\s*[:\s]/i.test(rs)){
+        var mp=rs.match(/[Pp]rocesso\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
+        if(mp) proc=mp[1].trim();
+        continue; // ignora qualquer qtd nesta linha (é total de processo)
       }
+
+      // ── Nome (produto) ────────────────────────────────────────
+      // Linha tem "Nome :" → captura produto, ignora qtd (é total de produto)
+      var nc=(/^Nome\s*[:\s]/i.test(c0)?c0:(/^Nome\s*[:\s]/i.test(c1)?c1:null));
+      if(nc){
+        var mn=nc.match(/Nome\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
+        prod=mn?mn[1].replace(/\s+/g,' ').trim().replace(/\*+$/,'').trim():'';
+        continue; // ignora qtd desta linha (é total do produto)
+      }
+
+      // ── Cor ───────────────────────────────────────────────────
+      // Linha tem "Cor :" ou "Cor " (sem dois pontos, erro de digitação)
+      // Aceita em col0, col1, col2 ou col3
+      var corRaw=null;
+      var cols=[c0,c1,c2,c3];
+      for(var ci=0;ci<cols.length;ci++){
+        if(/^Cor\s*[:\s]/i.test(cols[ci])){corRaw=cols[ci];break;}
+      }
+      if(!corRaw) continue; // linha sem Cor → ignora (evita pegar totais intermediários)
+
+      var mc=corRaw.match(/^Cor\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
+      var cor=mc?mc[1].replace(/\s+/g,' ').trim():'';
+      if(!cor||!prod) continue;
+
+      // Quantidade: APENAS col4 (índice 4) — nunca busca fallback em outras colunas
+      // Isso evita pegar totais de processo/produto que ficam em linhas sem Cor
+      var qtde=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
+      if(isNaN(qtde)||qtde<=0) continue;
+
+      var prodNorm=prod.replace(/\s+/g,' ').trim();
+      var corNorm =cor.replace(/\s+/g,' ').trim();
+      var procNorm=proc.replace(/\s+/g,' ').trim();
+      var chave=prodNorm+'||'+corNorm+'||'+procNorm;
+      if(!itens[chave]) itens[chave]={produto:prodNorm,cor:corNorm,qtd:0,processo:procNorm};
+      itens[chave].qtd+=qtde;
     }
-    if(Object.keys(itens).length>0)return itens;
+    if(Object.keys(itens).length>0) return itens;
   }
   return itens;
 }
@@ -777,17 +811,25 @@ function compararEstoques(){
 }
 function renderComparacao(){
   var esg=[],red=[],aum=[],nov=[],vol=[];
-  var nomesAtu={};Object.keys(dadosAtual).forEach(function(c){nomesAtu[dadosAtual[c].produto]=true;});
+  // Chave agora inclui processo (produto||cor||processo)
+  // Esgotado = combinação produto+cor+processo zerou ou sumiu
   Object.keys(dadosAnterior).forEach(function(chave){
     var ant=dadosAnterior[chave],atu=dadosAtual[chave];
-    if(!atu||atu.qtd===0){if(nomesAtu[ant.produto])return;esg.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:0,processo:ant.processo,tipo:'esgotado'});}
-    else if(atu.qtd<ant.qtd)red.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:atu.qtd,processo:ant.processo,tipo:'reduziu'});
-    else if(atu.qtd>ant.qtd)aum.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:atu.qtd,processo:ant.processo,tipo:'aumentou'});
+    if(!atu||atu.qtd===0){
+      esg.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:0,processo:ant.processo,tipo:'esgotado'});
+    } else if(atu.qtd<ant.qtd){
+      red.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:atu.qtd,processo:ant.processo,tipo:'reduziu'});
+    } else if(atu.qtd>ant.qtd){
+      aum.push({produto:ant.produto,cor:ant.cor,qtdAnt:ant.qtd,qtdAtu:atu.qtd,processo:ant.processo,tipo:'aumentou'});
+    }
   });
   Object.keys(dadosAtual).forEach(function(chave){
     var atu=dadosAtual[chave];
-    if(!dadosAnterior[chave])nov.push({produto:atu.produto,cor:atu.cor,qtdAnt:0,qtdAtu:atu.qtd,processo:atu.processo,tipo:'novo'});
-    else if(dadosAnterior[chave].qtd===0&&atu.qtd>0)vol.push({produto:atu.produto,cor:atu.cor,qtdAnt:0,qtdAtu:atu.qtd,processo:atu.processo,tipo:'voltou'});
+    if(!dadosAnterior[chave]){
+      nov.push({produto:atu.produto,cor:atu.cor,qtdAnt:0,qtdAtu:atu.qtd,processo:atu.processo,tipo:'novo'});
+    } else if(dadosAnterior[chave].qtd===0&&atu.qtd>0){
+      vol.push({produto:atu.produto,cor:atu.cor,qtdAnt:0,qtdAtu:atu.qtd,processo:atu.processo,tipo:'voltou'});
+    }
   });
   _todosResultados=esg.concat(red).concat(aum).concat(nov).concat(vol);
   var h='<div style="margin-top:20px"><p class="section-label">Resultado</p><div class="stats-grid">';
