@@ -207,7 +207,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="header-top">
     <div class="logo">📦</div>
     <div><h1>Estoque Beta</h1><p id="header-status">Conecte ao Google Drive</p></div>
-    <div class="app-version">v2026.06.16.2</div>
+    <div class="app-version">v2026.06.16.3</div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="trocarTela('comparar',this)">Comparar</button>
@@ -691,6 +691,13 @@ function toggleDiagnostico() {
   lines.push('JSON ID: ' + JSON_ETIQUETAS_ID);
   lines.push('Total produtos com etiqueta: ' + total);
   lines.push('Total produtos no estoque: ' + todosProdutos.length);
+  if(resumoBuscaEstoques&&resumoBuscaEstoques.length){
+    lines.push('');
+    lines.push('=== ESTOQUES CARREGADOS ===');
+    resumoBuscaEstoques.forEach(function(r){
+      lines.push('  - '+r.label+': '+r.qtd+' produto(s)'+(r.arquivo?' | arquivo: '+r.arquivo:'')+(r.erro?' | erro: '+r.erro:''));
+    });
+  }
   if (total > 0) {
     lines.push('');
     lines.push('Nomes no JSON (primeiros 8):');
@@ -811,36 +818,62 @@ function parseNumeroEstoque(v){
   return parseFloat(s);
 }
 
+function scoreColunaEstoque(head,tipo){
+  if(!head)return 0;
+  var score=0;
+  if(tipo==='produto'){
+    if(/\b(NOME COMERCIAL|NOME PRODUTO|PRODUTO|DESCRICAO|DESCRICAO PRODUTO|MATERIAL|ARTIGO|TECIDO|ITEM)\b/.test(head))score+=4;
+    if(/\b(COR|CORES|COLOR|PROCESSO|LOTE|QTD|QTDE|QUANTIDADE|SALDO|ESTOQUE|DISPONIVEL|TOTAL|METROS|MTS|MT)\b/.test(head))score-=3;
+  }
+  if(tipo==='cor'){
+    if(/\b(COR|CORES|COLOR|COR PRODUTO)\b/.test(head))score+=5;
+  }
+  if(tipo==='qtd'){
+    if(/\b(SALDO|ESTOQUE|DISPONIVEL|DISPONIVEL VENDA|QUANTIDADE|QUANT|QTD|QTDE|METRAGEM|METROS|MTS|TOTAL|TOTAL GERAL|MT)\b/.test(head))score+=5;
+    if(/\b(PRECO|VALOR|R\$|CUSTO)\b/.test(head))score-=5;
+  }
+  if(tipo==='processo'){
+    if(/\b(PROCESSO|LOTE|CONTAINER|REFERENCIA|REF|PEDIDO|IMPORTACAO)\b/.test(head))score+=4;
+  }
+  return score;
+}
+
+function escolherColuna(headers,tipo){
+  var best=-1,bestScore=0;
+  headers.forEach(function(head,idx){
+    var s=scoreColunaEstoque(head,tipo);
+    if(s>bestScore){bestScore=s;best=idx;}
+  });
+  return best;
+}
+
 function parsearEstoqueTabela(rows){
   var itens={};
-  for(var h=0;h<Math.min(rows.length,25);h++){
+  var melhor=null;
+  for(var h=0;h<Math.min(rows.length,35);h++){
     var headers=rows[h].map(normalizarCabecalho);
-    var colProd=-1,colCor=-1,colQtd=-1,colProc=-1;
-
-    headers.forEach(function(head,idx){
-      if(!head)return;
-      if(colProd<0 && /(PRODUTO|DESCRICAO|DESCRICAO DO PRODUTO|NOME|ARTIGO|TECIDO|ITEM)/.test(head) && !/(COR|CORES|PROCESSO|LOTE|QTD|QUANT|SALDO|ESTOQUE)/.test(head))colProd=idx;
-      if(colCor<0 && /\b(COR|CORES|COLOR)\b/.test(head))colCor=idx;
-      if(colQtd<0 && /(QTD|QTDE|QUANT|QUANTIDADE|SALDO|ESTOQUE|DISPONIVEL|METRAGEM|METROS|MTS|\bMT\b)/.test(head))colQtd=idx;
-      if(colProc<0 && /(PROCESSO|LOTE|CONTAINER|REFERENCIA|REF)/.test(head))colProc=idx;
-    });
-
+    var colProd=escolherColuna(headers,'produto');
+    var colCor=escolherColuna(headers,'cor');
+    var colQtd=escolherColuna(headers,'qtd');
+    var colProc=escolherColuna(headers,'processo');
     if(colProd<0||colCor<0||colQtd<0)continue;
+    var score=scoreColunaEstoque(headers[colProd],'produto')+scoreColunaEstoque(headers[colCor],'cor')+scoreColunaEstoque(headers[colQtd],'qtd');
+    if(!melhor||score>melhor.score)melhor={linha:h,colProd:colProd,colCor:colCor,colQtd:colQtd,colProc:colProc,score:score};
+  }
 
-    for(var i=h+1;i<rows.length;i++){
-      var row=rows[i];
-      var prod=String(row[colProd]||'').replace(/\s+/g,' ').trim();
-      var cor=String(row[colCor]||'').replace(/\s+/g,' ').trim();
-      var proc=colProc>=0?String(row[colProc]||'').replace(/\s+/g,' ').trim():'';
-      var qtd=parseNumeroEstoque(row[colQtd]);
-      if(!prod||!cor||isNaN(qtd)||qtd<=0)continue;
-      if(/TOTAL|SUBTOTAL|SALDO|PRODUTO|DESCRICAO/i.test(prod)&&prod.length<20)continue;
-      var chave=prod+'||'+cor+'||'+proc;
-      if(!itens[chave])itens[chave]={produto:prod,cor:cor,qtd:0,processo:proc};
-      itens[chave].qtd+=qtd;
-    }
+  if(!melhor)return itens;
 
-    if(Object.keys(itens).length>0)return itens;
+  for(var i=melhor.linha+1;i<rows.length;i++){
+    var row=rows[i];
+    var prod=String(row[melhor.colProd]||'').replace(/\s+/g,' ').trim();
+    var cor=String(row[melhor.colCor]||'').replace(/\s+/g,' ').trim();
+    var proc=melhor.colProc>=0?String(row[melhor.colProc]||'').replace(/\s+/g,' ').trim():'';
+    var qtd=parseNumeroEstoque(row[melhor.colQtd]);
+    if(!prod||!cor||isNaN(qtd)||qtd<=0)continue;
+    if(/TOTAL|SUBTOTAL|SALDO|PRODUTO|DESCRICAO|NOME COMERCIAL/i.test(prod)&&prod.length<25)continue;
+    var chave=prod+'||'+cor+'||'+proc;
+    if(!itens[chave])itens[chave]={produto:prod,cor:cor,qtd:0,processo:proc};
+    itens[chave].qtd+=qtd;
   }
   return itens;
 }
