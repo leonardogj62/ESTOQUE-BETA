@@ -22,6 +22,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .header h1 { font-size: 18px; font-weight: 600; }
 .header p { font-size: 12px; opacity: 0.6; margin-top: 1px; }
+.app-version { margin-left: auto; align-self: flex-start; font-size: 10px; line-height: 1; color: rgba(255,255,255,0.45); font-weight: 600; letter-spacing: 0.02em; padding-top: 4px; }
 .tabs { display: flex; gap: 5px; }
 .tab { flex: 1; padding: 8px 0; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
 .tab.active { background: white; color: var(--accent); }
@@ -86,6 +87,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .produto-header { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: var(--surface2); }
 .produto-nome { font-size: 14px; font-weight: 500; }
 .produto-total { font-size: 12px; color: var(--text2); }
+.estoque-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.estoque-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: #e6f1fb; color: #0c447c; }
+.estoque-tag.pe { background: #eaf3de; color: #27500a; }
+.estoque-tag.promo { background: #f0e6fb; color: #5b2c8a; }
 .produto-arrow { font-size: 12px; color: var(--text3); transition: transform 0.2s; }
 .produto-card.open .produto-arrow { transform: rotate(180deg); }
 .cores-list { display: none; }
@@ -198,6 +203,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="header-top">
     <div class="logo">📦</div>
     <div><h1>Estoque Beta</h1><p id="header-status">Conecte ao Google Drive</p></div>
+    <div class="app-version">v2026.06.16.1</div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="trocarTela('comparar',this)">Comparar</button>
@@ -244,7 +250,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div id="bloco-buscar" style="display:none">
     <p class="section-label">Tipo de estoque</p>
     <div class="tipo-chips" id="chips-busca">
-      <div class="tipo-chip selected" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipoBusca(this)">Masc. Pronta Entrega</div>
+      <div class="tipo-chip selected" data-pasta-id="todos" onclick="selecionarTipoBusca(this)">Todos</div>
+      <div class="tipo-chip" data-pasta-id="1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN" onclick="selecionarTipoBusca(this)">Masc. Pronta Entrega</div>
       <div class="tipo-chip" data-pasta-id="1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM" onclick="selecionarTipoBusca(this)">Masc. Programação</div>
       <div class="tipo-chip" data-pasta-id="1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw" onclick="selecionarTipoBusca(this)">Fem. Pronta Entrega</div>
       <div class="tipo-chip" data-pasta-id="1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3" onclick="selecionarTipoBusca(this)">Fem. Programação</div>
@@ -330,15 +337,27 @@ var JSON_ETIQUETAS_ID = '1dZoLw8nCoSkSIcm9WRPGVMLWSA_y_gnU';
 
 var token = null;
 var pastaAtiva  = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
-var pastaBusca  = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
+var pastaBusca  = 'todos';
 var pastaPrecos = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
 var arquivoAtual = null, arquivoAnterior = null;
 var dadosAnterior = null, dadosAtual = null;
-var todosProdutos = [], _todosResultados = [];
+var todosProdutos = [], todosProdutosBuscaCompleto = [], _todosResultados = [];
 var tabelaPrecos = {}, dadosEtiquetas = {};
 var fonteSelecionada = 'upload';
 var TABELA_STORAGE_KEY = 'beta_tabela_precos_v1';
 var TABELA_META_KEY    = 'beta_tabela_meta_v1';
+var TIPOS_ESTOQUE = [
+  {pastaId:'1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN', label:'Masc. Pronta Entrega', classe:'pe'},
+  {pastaId:'1yDaHnu-Niu4cSRANmVVlcaFMZuV63GwM', label:'Masc. Programação', classe:'prog'},
+  {pastaId:'1l-Yy6x3zvvLBydMvqKrs_x44sOUSPKgw', label:'Fem. Pronta Entrega', classe:'pe'},
+  {pastaId:'1-CKUHnLNpu0bYZgu8IRj7CWvO36B9gG3', label:'Fem. Programação', classe:'prog'},
+  {pastaId:'1f8BET1iBiAZe3QnbuIpfg-Nmixzy1NMN', label:'Fem. Promoção', classe:'promo'}
+];
+var MIME_EXCEL = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'application/vnd.google-apps.spreadsheet'
+];
 
 // Força reconexão limpando tudo
 function forcarReconectar() {
@@ -758,6 +777,21 @@ function downloadArquivo(id){
   .then(function(r){return r.arrayBuffer();})
   .then(function(buf){var r=parsearEstoque(XLSX.read(buf,{type:'array'}));return r;});
 }
+
+function isArquivoExcel(f){
+  var nome=(f.name||'').toLowerCase();
+  return MIME_EXCEL.indexOf(f.mimeType)>=0 || /\.xlsx?$/.test(nome);
+}
+
+function downloadArquivoDrive(f){
+  if(f.mimeType==='application/vnd.google-apps.spreadsheet'){
+    return fetch('https://www.googleapis.com/drive/v3/files/'+f.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',{headers:{Authorization:'Bearer '+token}})
+    .then(function(r){return r.arrayBuffer();})
+    .then(function(buf){return parsearEstoque(XLSX.read(buf,{type:'array'}));});
+  }
+  return downloadArquivo(f.id);
+}
+
 function parsearEstoque(wb){
   var itens={};
   var totaisDeclarados=[]; // {produto, processo, totalDeclarado, nLinha}
@@ -1138,32 +1172,99 @@ function selecionarTipo(chip){
 // ── BUSCAR ─────────────────────────────────────────────
 function selecionarTipoBusca(chip){
   document.querySelectorAll('#chips-busca .tipo-chip').forEach(function(c){c.classList.remove('selected');});chip.classList.add('selected');
-  pastaBusca=chip.dataset.pastaId;document.getElementById('area-busca-produto').style.display='none';carregarUltimoEstoque();
+  pastaBusca=chip.dataset.pastaId||'todos';
+  if(todosProdutosBuscaCompleto.length){
+    aplicarFiltroTipoBusca();
+    filtrarProdutos();
+  } else {
+    document.getElementById('area-busca-produto').style.display='none';
+    carregarUltimoEstoque();
+  }
 }
-function carregarUltimoEstoque(){
-  document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];
-  var q="'"+pastaBusca+"' in parents and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' and trashed=false";
-  fetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime)&pageSize=20',{headers:{Authorization:'Bearer '+token}})
+
+function buscarTipoPorPasta(pastaId){
+  return TIPOS_ESTOQUE.find(function(t){return t.pastaId===pastaId;})||null;
+}
+
+function carregarEstoqueBuscaTipo(tipo){
+  var q="'"+tipo.pastaId+"' in parents and trashed=false";
+  return fetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&orderBy=modifiedTime+desc&fields=files(id,name,mimeType,modifiedTime)&pageSize=30',{headers:{Authorization:'Bearer '+token}})
   .then(function(r){return r.json();})
   .then(function(data){
-    var files=(data.files||[]).sort(function(a,b){var da=extrairDataDoNome(a.name),db=extrairDataDoNome(b.name);if(da&&db)return db-da;return new Date(b.modifiedTime)-new Date(a.modifiedTime);});
-    if(!files.length){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado.</p></div>';document.getElementById('area-busca-produto').style.display='block';return null;}
-    return downloadArquivo(files[0].id);
+    var files=(data.files||[]).filter(isArquivoExcel).sort(function(a,b){var da=extrairDataDoNome(a.name),db=extrairDataDoNome(b.name);if(da&&db)return db-da;return new Date(b.modifiedTime)-new Date(a.modifiedTime);});
+    if(!files.length)return {tipo:tipo, arquivo:null, dados:null, erro:'Nenhum arquivo encontrado'};
+    return downloadArquivoDrive(files[0]).then(function(r){return {tipo:tipo, arquivo:files[0], dados:r, erro:null};});
   })
-  .then(function(r){
-    if(!r)return;
-    var dados=r.itens;
+  .catch(function(e){return {tipo:tipo, arquivo:null, dados:null, erro:(e&&e.message)||'Erro ao carregar'};});
+}
+
+function carregarUltimoEstoque(){
+  document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];todosProdutosBuscaCompleto=[];
+  document.getElementById('lista-produtos').innerHTML='';
+  var divAlerta=document.getElementById('alerta-busca');
+  if(divAlerta)divAlerta.innerHTML='';
+
+  Promise.all(TIPOS_ESTOQUE.map(carregarEstoqueBuscaTipo))
+  .then(function(resultados){
     document.getElementById('loading-busca').style.display='none';
-    // Valida inconsistências do arquivo de busca
-    var alertasBusca=validarEstoque(dados,r.totais,pastaBusca||'');
-    var divAlerta=document.getElementById('alerta-busca');
-    if(divAlerta) divAlerta.innerHTML=alertasBusca.length?renderAlertasPanel(alertasBusca):'';
-    var mapa={};Object.keys(dados).forEach(function(c){var item=dados[c];if(!mapa[item.produto])mapa[item.produto]=[];mapa[item.produto].push({cor:item.cor,qtd:item.qtd,processo:item.processo});});
-    todosProdutos=Object.keys(mapa).sort().map(function(n){return{nome:n,cores:mapa[n]};});
-    document.getElementById('input-busca').value='';renderProdutos(todosProdutos);document.getElementById('area-busca-produto').style.display='block';
+    var mapa={}, alertasBusca=[], falhas=[];
+
+    resultados.forEach(function(res){
+      if(!res.dados){
+        falhas.push(res.tipo.label+': '+res.erro);
+        return;
+      }
+      var dados=res.dados.itens||{};
+      alertasBusca=alertasBusca.concat(validarEstoque(dados,res.dados.totais||[],res.tipo.label+' · '+(res.arquivo?res.arquivo.name:'')));
+      Object.keys(dados).forEach(function(c){
+        var item=dados[c];
+        if(!mapa[item.produto])mapa[item.produto]=[];
+        mapa[item.produto].push({cor:item.cor,qtd:item.qtd,processo:item.processo,tipoId:res.tipo.pastaId,tipoLabel:res.tipo.label,tipoClasse:res.tipo.classe});
+      });
+    });
+
+    todosProdutosBuscaCompleto=Object.keys(mapa).sort().map(function(n){
+      var tipos={};
+      mapa[n].forEach(function(c){tipos[c.tipoId]={label:c.tipoLabel,classe:c.tipoClasse};});
+      return {nome:n,cores:mapa[n],tipos:Object.keys(tipos).map(function(k){return tipos[k];})};
+    });
+
+    if(divAlerta){
+      var aviso='';
+      if(alertasBusca.length)aviso+=renderAlertasPanel(alertasBusca);
+      if(falhas.length)aviso+='<div class="info-box" style="margin-top:12px">Algumas pastas nao retornaram arquivo: '+falhas.join(' | ')+'</div>';
+      divAlerta.innerHTML=aviso;
+    }
+
+    if(!todosProdutosBuscaCompleto.length){
+      document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum arquivo encontrado nas pastas de estoque.</p></div>';
+      document.getElementById('area-busca-produto').style.display='block';
+      return;
+    }
+
+    document.getElementById('input-busca').value='';
+    aplicarFiltroTipoBusca();
+    renderProdutos(todosProdutos);
+    document.getElementById('area-busca-produto').style.display='block';
   })
   .catch(function(){document.getElementById('loading-busca').style.display='none';document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">[!]</div><p>Erro ao carregar.</p></div>';document.getElementById('area-busca-produto').style.display='block';});
 }
+
+function aplicarFiltroTipoBusca(){
+  if(pastaBusca==='todos'){
+    todosProdutos=todosProdutosBuscaCompleto.slice();
+    return;
+  }
+  todosProdutos=todosProdutosBuscaCompleto
+    .map(function(p){
+      var cores=p.cores.filter(function(c){return c.tipoId===pastaBusca;});
+      if(!cores.length)return null;
+      var tipo=buscarTipoPorPasta(pastaBusca);
+      return {nome:p.nome,cores:cores,tipos:tipo?[{label:tipo.label,classe:tipo.classe}]:[]};
+    })
+    .filter(Boolean);
+}
+
 function filtrarProdutos(){
   var q=document.getElementById('input-busca').value.toLowerCase().trim();
   renderProdutos(!q?todosProdutos:todosProdutos.filter(function(p){return p.nome.toLowerCase().includes(q)||p.cores.some(function(c){return c.cor.toLowerCase().includes(q)||(c.processo&&c.processo.toLowerCase().includes(q));});}));
@@ -1189,6 +1290,10 @@ function renderProdutos(lista){
       if(e0.composicao)parts.push(e0.composicao);
       if(parts.length)specsHtml='<div class="produto-specs">'+parts.join(' · ')+'</div>';
     }
+    var tagsHtml='';
+    if(p.tipos&&p.tipos.length){
+      tagsHtml='<div class="estoque-tags">'+p.tipos.map(function(t){return '<span class="estoque-tag '+(t.classe||'')+'">'+t.label+'</span>';}).join('')+'</div>';
+    }
     // Painel de preço oculto
     var precoPanel='';
     if(pi){
@@ -1213,6 +1318,7 @@ function renderProdutos(lista){
       +'<span class="produto-nome">'+p.nome+'</span>'+etTag+precoBtn+'</div>'
       +specsHtml
       +'<div class="produto-total" style="margin-top:2px">'+p.cores.length+' cor(es) · '+Math.round(total)+' m</div>'
+      +tagsHtml
       +'</div>'
       +'<span class="produto-arrow" style="flex-shrink:0">▼</span></div>'
       +precoPanel
@@ -1220,7 +1326,7 @@ function renderProdutos(lista){
       +p.cores.map(function(c){
         return '<div class="cor-item"><div style="flex:1">'
           +'<div class="cor-nome">'+c.cor+'</div>'
-          +(c.processo?'<div class="cor-processo">Processo: '+c.processo+'</div>':'<div class="cor-processo" style="color:#a32d2d">⚠ Sem processo</div>')
+          +'<div class="cor-processo">'+(c.tipoLabel?c.tipoLabel+' · ':'')+(c.processo?'Processo: '+c.processo:'<span style="color:#a32d2d">⚠ Sem processo</span>')+'</div>'
           +'</div><div class="cor-qtd">'+Math.round(c.qtd)+' m</div></div>';
       }).join('')
       +(temEt?renderEtiqueta(etInfo):'')
