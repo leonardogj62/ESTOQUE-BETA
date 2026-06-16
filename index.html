@@ -91,6 +91,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .estoque-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: #e6f1fb; color: #0c447c; }
 .estoque-tag.pe { background: #eaf3de; color: #27500a; }
 .estoque-tag.promo { background: #f0e6fb; color: #5b2c8a; }
+.busca-resumo { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
+.busca-resumo-chip { font-size:10px; font-weight:700; padding:3px 8px; border-radius:12px; background:var(--surface); border:0.5px solid var(--border); color:var(--text2); }
+.busca-resumo-chip.ok { background:#eaf3de; color:#27500a; border-color:#c0dd97; }
+.busca-resumo-chip.vazio { background:#faeeda; color:#633806; border-color:#efd0a0; }
 .produto-arrow { font-size: 12px; color: var(--text3); transition: transform 0.2s; }
 .produto-card.open .produto-arrow { transform: rotate(180deg); }
 .cores-list { display: none; }
@@ -203,7 +207,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="header-top">
     <div class="logo">📦</div>
     <div><h1>Estoque Beta</h1><p id="header-status">Conecte ao Google Drive</p></div>
-    <div class="app-version">v2026.06.16.1</div>
+    <div class="app-version">v2026.06.16.2</div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="trocarTela('comparar',this)">Comparar</button>
@@ -341,7 +345,7 @@ var pastaBusca  = 'todos';
 var pastaPrecos = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
 var arquivoAtual = null, arquivoAnterior = null;
 var dadosAnterior = null, dadosAtual = null;
-var todosProdutos = [], todosProdutosBuscaCompleto = [], _todosResultados = [];
+var todosProdutos = [], todosProdutosBuscaCompleto = [], resumoBuscaEstoques = [], _todosResultados = [];
 var tabelaPrecos = {}, dadosEtiquetas = {};
 var fonteSelecionada = 'upload';
 var TABELA_STORAGE_KEY = 'beta_tabela_precos_v1';
@@ -792,6 +796,55 @@ function downloadArquivoDrive(f){
   return downloadArquivo(f.id);
 }
 
+function normalizarCabecalho(v){
+  return String(v||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+
+function parseNumeroEstoque(v){
+  if(typeof v==='number')return v;
+  var s=String(v||'').trim();
+  if(!s)return NaN;
+  s=s.replace(/[^\d,.\-]/g,'');
+  if(s.indexOf(',')>=0){
+    s=s.replace(/\./g,'').replace(',','.');
+  }
+  return parseFloat(s);
+}
+
+function parsearEstoqueTabela(rows){
+  var itens={};
+  for(var h=0;h<Math.min(rows.length,25);h++){
+    var headers=rows[h].map(normalizarCabecalho);
+    var colProd=-1,colCor=-1,colQtd=-1,colProc=-1;
+
+    headers.forEach(function(head,idx){
+      if(!head)return;
+      if(colProd<0 && /(PRODUTO|DESCRICAO|DESCRICAO DO PRODUTO|NOME|ARTIGO|TECIDO|ITEM)/.test(head) && !/(COR|CORES|PROCESSO|LOTE|QTD|QUANT|SALDO|ESTOQUE)/.test(head))colProd=idx;
+      if(colCor<0 && /\b(COR|CORES|COLOR)\b/.test(head))colCor=idx;
+      if(colQtd<0 && /(QTD|QTDE|QUANT|QUANTIDADE|SALDO|ESTOQUE|DISPONIVEL|METRAGEM|METROS|MTS|\bMT\b)/.test(head))colQtd=idx;
+      if(colProc<0 && /(PROCESSO|LOTE|CONTAINER|REFERENCIA|REF)/.test(head))colProc=idx;
+    });
+
+    if(colProd<0||colCor<0||colQtd<0)continue;
+
+    for(var i=h+1;i<rows.length;i++){
+      var row=rows[i];
+      var prod=String(row[colProd]||'').replace(/\s+/g,' ').trim();
+      var cor=String(row[colCor]||'').replace(/\s+/g,' ').trim();
+      var proc=colProc>=0?String(row[colProc]||'').replace(/\s+/g,' ').trim():'';
+      var qtd=parseNumeroEstoque(row[colQtd]);
+      if(!prod||!cor||isNaN(qtd)||qtd<=0)continue;
+      if(/TOTAL|SUBTOTAL|SALDO|PRODUTO|DESCRICAO/i.test(prod)&&prod.length<20)continue;
+      var chave=prod+'||'+cor+'||'+proc;
+      if(!itens[chave])itens[chave]={produto:prod,cor:cor,qtd:0,processo:proc};
+      itens[chave].qtd+=qtd;
+    }
+
+    if(Object.keys(itens).length>0)return itens;
+  }
+  return itens;
+}
+
 function parsearEstoque(wb){
   var itens={};
   var totaisDeclarados=[]; // {produto, processo, totalDeclarado, nLinha}
@@ -854,6 +907,9 @@ function parsearEstoque(wb){
       itens[chave].qtd+=qtde;
     }
     if(Object.keys(itens).length>0) return {itens:itens,totais:totaisDeclarados};
+
+    var itensTabela=parsearEstoqueTabela(rows);
+    if(Object.keys(itensTabela).length>0) return {itens:itensTabela,totais:totaisDeclarados};
   }
   return {itens:itens,totais:totaisDeclarados};
 }
@@ -1199,7 +1255,7 @@ function carregarEstoqueBuscaTipo(tipo){
 }
 
 function carregarUltimoEstoque(){
-  document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];todosProdutosBuscaCompleto=[];
+  document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];todosProdutosBuscaCompleto=[];resumoBuscaEstoques=[];
   document.getElementById('lista-produtos').innerHTML='';
   var divAlerta=document.getElementById('alerta-busca');
   if(divAlerta)divAlerta.innerHTML='';
@@ -1212,9 +1268,13 @@ function carregarUltimoEstoque(){
     resultados.forEach(function(res){
       if(!res.dados){
         falhas.push(res.tipo.label+': '+res.erro);
+        resumoBuscaEstoques.push({label:res.tipo.label,qtd:0,erro:res.erro});
         return;
       }
       var dados=res.dados.itens||{};
+      var produtosTipo={};
+      Object.keys(dados).forEach(function(c){produtosTipo[dados[c].produto]=true;});
+      resumoBuscaEstoques.push({label:res.tipo.label,qtd:Object.keys(produtosTipo).length,erro:null,arquivo:res.arquivo?res.arquivo.name:''});
       alertasBusca=alertasBusca.concat(validarEstoque(dados,res.dados.totais||[],res.tipo.label+' · '+(res.arquivo?res.arquivo.name:'')));
       Object.keys(dados).forEach(function(c){
         var item=dados[c];
@@ -1270,8 +1330,15 @@ function filtrarProdutos(){
   renderProdutos(!q?todosProdutos:todosProdutos.filter(function(p){return p.nome.toLowerCase().includes(q)||p.cores.some(function(c){return c.cor.toLowerCase().includes(q)||(c.processo&&c.processo.toLowerCase().includes(q));});}));
 }
 function renderProdutos(lista){
-  if(!lista.length){document.getElementById('lista-produtos').innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>';return;}
-  document.getElementById('lista-produtos').innerHTML=lista.map(function(p,idx){
+  var resumoHtml='';
+  if(resumoBuscaEstoques&&resumoBuscaEstoques.length){
+    resumoHtml='<div class="busca-resumo">'+resumoBuscaEstoques.map(function(r){
+      var cls=r.qtd>0?'ok':'vazio';
+      return '<span class="busca-resumo-chip '+cls+'" title="'+(r.arquivo||r.erro||'')+'">'+r.label+': '+r.qtd+'</span>';
+    }).join('')+'</div>';
+  }
+  if(!lista.length){document.getElementById('lista-produtos').innerHTML=resumoHtml+'<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado neste filtro. Toque em Todos para ver o estoque consolidado.</p></div>';return;}
+  document.getElementById('lista-produtos').innerHTML=resumoHtml+lista.map(function(p,idx){
     var total=p.cores.reduce(function(s,c){return s+c.qtd;},0);
     var etInfo=buscarEtiquetaProduto(p.nome);
     var temEt=etInfo&&etInfo.etiquetas&&etInfo.etiquetas.length>0;
