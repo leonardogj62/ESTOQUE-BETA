@@ -207,7 +207,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="header-top">
     <div class="logo">📦</div>
     <div><h1>Estoque Beta</h1><p id="header-status">Conecte ao Google Drive</p></div>
-    <div class="app-version">v2026.06.16.4</div>
+    <div class="app-version">v2026.06.16.5</div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="trocarTela('comparar',this)">Comparar</button>
@@ -346,6 +346,7 @@ var pastaPrecos = '1d-1geCZw4_K8AqwX3J1RlmkBIOA7OnIN';
 var arquivoAtual = null, arquivoAnterior = null;
 var dadosAnterior = null, dadosAtual = null;
 var todosProdutos = [], todosProdutosBuscaCompleto = [], resumoBuscaEstoques = [], _todosResultados = [];
+var _buscaLoadId = 0;
 var tabelaPrecos = {}, dadosEtiquetas = {};
 var fonteSelecionada = 'upload';
 var TABELA_STORAGE_KEY = 'beta_tabela_precos_v1';
@@ -885,6 +886,8 @@ function parsearEstoque(wb){
     var sheet=wb.Sheets[wb.SheetNames[si]];
     var rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
     var prod='',proc='';
+    var processoColIdx=-1;
+    var nextRowIsData=false;
     for(var i=0;i<rows.length;i++){
       var row=rows[i];
       var c0=String(row[0]||'').trim();
@@ -893,11 +896,23 @@ function parsearEstoque(wb){
       var c3=String(row[3]||'').trim();
 
       // ── Processo ──────────────────────────────────────────────
-      var rs=c0+' '+c1+' '+c2+' '+c3;
-      if(/processo\s*[:\s]/i.test(rs)){
-        var mp=rs.match(/[Pp]rocesso\s*[:\s]\s*([A-Z0-9\-\.\/a-z]+)/i);
-        if(mp) proc=mp[1].trim();
+      // Formato 1: "Processo: XXXXX" com dois pontos na mesma linha
+      var rs=row.map(function(c){return String(c||'');}).join(' ');
+      var mp=rs.match(/[Pp]rocesso\s*:\s*([A-Z0-9\-\.\/a-z]+)/i);
+      if(mp&&mp[1]&&mp[1].trim().length>1&&mp[1].trim()!=='0'){
+        proc=mp[1].trim();processoColIdx=-1;continue;
+      }
+      // Formato 2: "Processo" como cabeçalho de coluna (Fem PE/Programação)
+      var hasProcessoHeader=row.some(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
+      if(hasProcessoHeader&&!mp){
+        processoColIdx=row.findIndex(function(cell){return String(cell||'').trim().toLowerCase()==='processo';});
+        nextRowIsData=true;
         continue;
+      }
+      if(nextRowIsData&&processoColIdx>=0){
+        nextRowIsData=false;
+        var procVal=String(row[processoColIdx]||'').trim();
+        if(procVal&&procVal.length>1&&!/^\d+$/.test(procVal)&&procVal!=='0'){proc=procVal;}
       }
 
       // ── Nome (produto) ────────────────────────────────────────
@@ -905,7 +920,7 @@ function parsearEstoque(wb){
       if(nc){
         var mn=nc.match(/Nome\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
         prod=mn?mn[1].replace(/\s+/g,' ').trim().replace(/\*+$/,'').trim():'';
-        // Captura total declarado na linha do Nome (col4)
+        proc='';processoColIdx=-1;
         var tdVal=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
         if(!isNaN(tdVal)&&tdVal>0){
           totaisDeclarados.push({produto:prod,processo:proc,totalDeclarado:tdVal,linha:i+1});
@@ -914,22 +929,28 @@ function parsearEstoque(wb){
       }
 
       // ── Cor ───────────────────────────────────────────────────
-      // Linha tem "Cor :" ou "Cor " (sem dois pontos, erro de digitação)
-      // Aceita em col0, col1, col2 ou col3
       var corRaw=null;
       var cols=[c0,c1,c2,c3];
       for(var ci=0;ci<cols.length;ci++){
         if(/^Cor\s*[:\s]/i.test(cols[ci])){corRaw=cols[ci];break;}
       }
-      if(!corRaw) continue; // linha sem Cor → ignora (evita pegar totais intermediários)
+      if(!corRaw) continue;
 
       var mc=corRaw.match(/^Cor\s*[:\s]\s*(.+?)(?:\s*\(|$)/i);
       var cor=mc?mc[1].replace(/\s+/g,' ').trim():'';
       if(!cor||!prod) continue;
 
-      // Quantidade: APENAS col4 (índice 4) — nunca busca fallback em outras colunas
-      // Isso evita pegar totais de processo/produto que ficam em linhas sem Cor
+      // Quantidade: tenta col4 primeiro; se vazia, busca em outras colunas
       var qtde=parseFloat(String(row[4]||'').replace(/\./g,'').replace(',','.'));
+      if(isNaN(qtde)||qtde<=0){
+        for(var j=0;j<row.length;j++){
+          var cell=String(row[j]||'').trim();
+          if(!cell||/^(Cor|Nome|Processo|SubClasse|Qtde em Estoque|0)$/i.test(cell))continue;
+          if(/^Cor\s*[:\s]/i.test(cell)||/^Nome\s*[:\s]/i.test(cell))continue;
+          var n=parseFloat(cell.replace(/\./g,'').replace(',','.'));
+          if(!isNaN(n)&&n>0&&/^\d/.test(cell)){qtde=n;break;}
+        }
+      }
       if(isNaN(qtde)||qtde<=0) continue;
 
       var prodNorm=prod.replace(/\s+/g,' ').trim();
@@ -1288,6 +1309,7 @@ function carregarEstoqueBuscaTipo(tipo){
 }
 
 function carregarUltimoEstoque(){
+  var loadId=++_buscaLoadId;
   document.getElementById('loading-busca').style.display='block';document.getElementById('area-busca-produto').style.display='none';todosProdutos=[];todosProdutosBuscaCompleto=[];resumoBuscaEstoques=[];
   document.getElementById('lista-produtos').innerHTML='';
   var divAlerta=document.getElementById('alerta-busca');
@@ -1295,6 +1317,7 @@ function carregarUltimoEstoque(){
 
   Promise.all(TIPOS_ESTOQUE.map(carregarEstoqueBuscaTipo))
   .then(function(resultados){
+    if(loadId!==_buscaLoadId)return;
     document.getElementById('loading-busca').style.display='none';
     var mapa={}, alertasBusca=[], falhas=[];
 
